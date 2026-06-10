@@ -172,8 +172,8 @@ const Home = () => {
               </h2>
               <p className="text-gray-400 text-lg mb-8 leading-relaxed">
                 {language === 'es' 
-                  ? 'SENSINA, nuestra solución de telemedición premium en tiempo real. Monitoree de forma remota tanques, cisternas, despachos de combustibles y flotas mediante hardware ESP32 de alta confiabilidad y de última generación.' 
-                  : 'SENSINA, our premium real-time telemetry solution. Remotely monitor tanks, cisterns, fuel dispenses, and fleets using highly reliable, cutting-edge ESP32 hardware.'}
+                  ? 'SENSINA, nuestra solución de telemedición premium en tiempo real. Monitoree de forma remota tanques, cisternas, despachos de combustibles y flotas mediante hardware industrial de alta confiabilidad y de última generación.' 
+                  : 'SENSINA, our premium real-time telemetry solution. Remotely monitor tanks, cisterns, fuel dispenses, and fleets using highly reliable, cutting-edge industrial hardware.'}
               </p>
 
               <div className="space-y-6 mb-12">
@@ -183,8 +183,8 @@ const Home = () => {
                     desc: language === 'es' ? 'Visualización exacta en litros, porcentaje de capacidad y temperatura de combustible.' : 'Accurate volume tracking in liters, capacity percentage, and fuel temperatures.' 
                   },
                   { 
-                    title: language === 'es' ? 'Integración ESP32 Directa' : 'Native ESP32 Integration', 
-                    desc: language === 'es' ? 'Envío constante de telemetría segura mediante módulos microcontroladores.' : 'Constant secure telemetry streaming through robust microcontroller modules.' 
+                    title: language === 'es' ? 'Integración de Hardware Directa' : 'Native Hardware Integration', 
+                    desc: language === 'es' ? 'Envío constante de telemetría segura mediante módulos microcontroladores de grado industrial.' : 'Constant secure telemetry streaming through robust industrial-grade microcontroller modules.' 
                   },
                   { 
                     title: language === 'es' ? 'Estado y Alertas de Surtidores' : 'Dispenser Alerts & Status', 
@@ -260,7 +260,7 @@ const Home = () => {
                   
                   <div className="bg-slate-950 border border-slate-800 p-4 rounded-sm">
                     <p className="text-[9px] uppercase font-bold text-slate-500 tracking-wider mb-1">
-                      {language === 'es' ? 'TELEMEDICIÓN ESP32' : 'ESP32 TELEMETRY'}
+                      {language === 'es' ? 'SENSINA TELEMETRÍA' : 'SENSINA TELEMETRY'}
                     </p>
                     <div className="flex items-center space-x-2">
                       <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping inline-block" />
