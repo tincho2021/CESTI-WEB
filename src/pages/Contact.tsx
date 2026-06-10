@@ -80,7 +80,7 @@ const Contact = () => {
                 </div>
                 <div>
                   <p className="text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-1">{t('contact.whatsapp')}</p>
-                  <p className="text-lg font-bold text-gray-900">+54 9 11 2182-9346</p>
+                  <p className="text-lg font-bold text-gray-900">+54 11 21 82 93 46</p>
                 </div>
               </div>
 

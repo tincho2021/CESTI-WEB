@@ -7,7 +7,7 @@ import ProductCard from '../components/ProductCard';
 import { useLanguage } from '../context/LanguageContext';
 
 const Home = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { products } = useProducts();
 
   return (
@@ -142,12 +142,12 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Smart Systems Section */}
-      <section id="smart" className="py-32 bg-gray-900 text-white overflow-hidden relative">
-        <div className="absolute top-0 right-0 w-1/2 h-full opacity-10 pointer-events-none">
+      {/* Flagship Product: IoT Telemetry & Monitoring Section */}
+      <section id="smart" className="py-32 bg-slate-950 text-white overflow-hidden relative">
+        <div className="absolute top-0 right-0 w-1/2 h-full opacity-[0.03] pointer-events-none">
           <div className="grid grid-cols-10 gap-4 h-full">
             {Array.from({ length: 100 }).map((_, i) => (
-              <div key={i} className="border border-white/20 aspect-square" />
+              <div key={i} className="border border-white/10 aspect-square" />
             ))}
           </div>
         </div>
@@ -158,74 +158,198 @@ const Home = () => {
               initial={{ opacity: 0, x: -50 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
             >
               <div className="flex items-center space-x-2 mb-6">
                 <div className="w-12 h-[2px] bg-red-600" />
-                <span className="text-xs font-bold uppercase tracking-[0.3em] text-red-600">{t('smart.tag')}</span>
+                <span className="text-xs font-bold uppercase tracking-[0.3em] text-red-600">
+                  {language === 'es' ? 'PRODUCTO ESTRELLA' : 'FLAGSHIP PRODUCT'}
+                </span>
               </div>
-              <h2 className="text-5xl font-bold tracking-tighter mb-8 leading-tight">
-                {t('smart.title')} <br />
-                <span className="text-red-600">{t('smart.title.accent')}</span>
+              <h2 className="text-5xl font-extrabold tracking-tighter mb-8 leading-tight">
+                {language === 'es' ? 'Plataforma de Monitoreo' : 'IoT Telemetry'} <br />
+                <span className="text-[#00b0ff]">CESTI IoT</span>
               </h2>
-              <p className="text-gray-400 text-lg mb-12 leading-relaxed">
-                {t('smart.desc')}
+              <p className="text-gray-400 text-lg mb-8 leading-relaxed">
+                {language === 'es' 
+                  ? 'Nuestra solución de telemedición premium en tiempo real. Monitoree de forma remota tanques, cisternas, despachos de combustibles y flotas mediante hardware ESP32 de alta confiabilidad y de última generación.' 
+                  : 'Our premium real-time telemetry solution. Remotely monitor tanks, cisterns, fuel dispenses, and fleets using highly reliable, cutting-edge ESP32 hardware.'}
               </p>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-12">
+              <div className="space-y-6 mb-12">
                 {[
-                  { title: t('smart.feat1.title'), desc: t('smart.feat1.desc') },
-                  { title: t('smart.feat2.title'), desc: t('smart.feat2.desc') },
-                  { title: t('smart.feat3.title'), desc: t('smart.feat3.desc') },
-                  { title: t('smart.feat4.title'), desc: t('smart.feat4.desc') },
-                ].map((item) => (
-                  <div key={item.title} className="border-l-2 border-red-600 pl-6">
-                    <h4 className="font-bold text-lg mb-2">{item.title}</h4>
-                    <p className="text-sm text-gray-500">{item.desc}</p>
+                  { 
+                    title: language === 'es' ? 'Monitoreo de Telemedición de Tanques' : 'Cistern & Tank Telemetry', 
+                    desc: language === 'es' ? 'Visualización exacta en litros, porcentaje de capacidad y temperatura de combustible.' : 'Accurate volume tracking in liters, capacity percentage, and fuel temperatures.' 
+                  },
+                  { 
+                    title: language === 'es' ? 'Integración ESP32 Directa' : 'Native ESP32 Integration', 
+                    desc: language === 'es' ? 'Envío constante de telemetría segura mediante módulos microcontroladores.' : 'Constant secure telemetry streaming through robust microcontroller modules.' 
+                  },
+                  { 
+                    title: language === 'es' ? 'Estado y Alertas de Surtidores' : 'Dispenser Alerts & Status', 
+                    desc: language === 'es' ? 'Control de despachos y detección temprana de anomalías con notificaciones directas.' : 'Dispensing logs and early anomaly detection with direct automated notifications.' 
+                  },
+                ].map((item, idx) => (
+                  <div key={idx} className="flex items-start space-x-4">
+                    <div className="w-2 h-2 mt-2 bg-[#00b0ff] rounded-full shrink-0" />
+                    <div>
+                      <h4 className="font-bold text-base text-gray-100">{item.title}</h4>
+                      <p className="text-sm text-gray-400">{item.desc}</p>
+                    </div>
                   </div>
                 ))}
               </div>
+
+              <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                <a
+                  href="https://nimble-rugelach-c87394.netlify.app/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center bg-[#00b0ff] hover:bg-red-600 text-black hover:text-white px-8 py-4 font-bold uppercase tracking-widest text-xs transition-all duration-300 rounded-sm shadow-lg shadow-[#00b0ff]/20 gap-3 group"
+                >
+                  {language === 'es' ? 'PROBAR DEMO EN VIVO' : 'TEST LIVE DEMO'}
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform" />
+                </a>
+                
+                <Link
+                  to="/contact"
+                  className="inline-flex items-center justify-center border border-gray-700 hover:border-white px-8 py-4 font-bold uppercase tracking-widest text-xs transition-all duration-300 rounded-sm"
+                >
+                  {language === 'es' ? 'SOLICITAR COTIZACIÓN' : 'GET A QUOTE'}
+                </Link>
+              </div>
             </motion.div>
 
+            {/* Simulated Live Dashboard Mockup inspired directly by the screenshot */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.2 }}
               className="relative"
             >
-              <div className="bg-gray-800 border border-gray-700 p-8 rounded-sm shadow-2xl">
-                <div className="flex items-center justify-between mb-8">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-3 h-3 bg-red-600 rounded-full animate-pulse" />
-                    <span className="text-xs font-bold uppercase tracking-widest">{t('smart.status')}</span>
+              <div className="bg-slate-900 border border-slate-800 p-6 sm:p-8 rounded-sm shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#00b0ff] to-red-600" />
+                
+                {/* Header of Simulated Dashboard */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-5 mb-6 gap-3">
+                  <div>
+                    <span className="text-[10px] tracking-wider font-bold text-gray-500 uppercase">
+                      {language === 'es' ? 'CENTRO DE OPERACIONES' : 'OPERATIONS HUB'}
+                    </span>
+                    <h3 className="text-lg font-black tracking-tight text-white mt-0.5">ESCOBAR</h3>
                   </div>
-                  <Settings className="w-5 h-5 text-gray-500" />
+                  <div className="flex items-center space-x-2.5">
+                    <span className="inline-flex items-center px-2.5 py-0.5 text-[9px] font-bold tracking-wider rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase animate-pulse">
+                      ● {language === 'es' ? 'SISTEMA ESTABLE' : 'STABLE SYSTEM'}
+                    </span>
+                    <span className="text-[9px] font-mono text-slate-500">v1.2.0</span>
+                  </div>
                 </div>
 
-                {/* Mock Chart */}
-                <div className="h-64 flex items-end space-x-2 mb-8">
-                  {[40, 70, 45, 90, 65, 80, 50, 85, 60, 95, 75, 85].map((h, i) => (
-                    <motion.div
-                      key={i}
-                      initial={{ height: 0 }}
-                      whileInView={{ height: `${h}%` }}
-                      className="flex-1 bg-red-600/20 border-t-2 border-red-600"
-                    />
-                  ))}
+                {/* Simulated Key Indicators */}
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  <div className="bg-slate-950 border border-slate-800 p-4 rounded-sm">
+                    <p className="text-[9px] uppercase font-bold text-slate-500 tracking-wider mb-1">
+                      {language === 'es' ? 'STOCK DISPONIBLE' : 'AVAILABLE STOCK'}
+                    </p>
+                    <p className="text-xl font-extrabold text-[#00b0ff]">55.960 L</p>
+                    <p className="text-[9px] text-slate-500 font-mono mt-1">86% {language === 'es' ? 'capacidad general' : 'general capacity'}</p>
+                  </div>
+                  
+                  <div className="bg-slate-950 border border-slate-800 p-4 rounded-sm">
+                    <p className="text-[9px] uppercase font-bold text-slate-500 tracking-wider mb-1">
+                      {language === 'es' ? 'TELEMEDICIÓN ESP32' : 'ESP32 TELEMETRY'}
+                    </p>
+                    <div className="flex items-center space-x-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping inline-block" />
+                      <p className="text-base font-extrabold text-emerald-400 font-mono">ONLINE</p>
+                    </div>
+                    <p className="text-[9px] text-slate-500 font-mono mt-1">Ping: 8ms • RSSI: -65dBm</p>
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="bg-gray-900 p-4 border border-gray-700">
-                    <p className="text-[10px] uppercase text-gray-500 font-bold mb-1">Temp</p>
-                    <p className="text-xl font-bold">42.5°C</p>
+                {/* Tanks Containers (Simulated Tank Levels) */}
+                <div className="space-y-4">
+                  <div className="text-[10px] tracking-wider font-extrabold text-slate-500 uppercase mb-2">
+                    {language === 'es' ? 'MONITOREO DE TELEMEDICIÓN DE TANQUES' : 'TANK TELEMETRY MEASURES'}
                   </div>
-                  <div className="bg-gray-900 p-4 border border-gray-700">
-                    <p className="text-[10px] uppercase text-gray-500 font-bold mb-1">Pressure</p>
-                    <p className="text-xl font-bold">12.4 Bar</p>
+                  
+                  {/* Tank 1 */}
+                  <div className="bg-slate-950/80 border border-slate-800/60 p-4 rounded-sm">
+                    <div className="flex justify-between items-center mb-1.5">
+                      <span className="text-xs font-bold text-gray-200">Cisterna Diesel Comun <span className="text-[9px] font-mono text-slate-400">(tank_02)</span></span>
+                      <span className="text-xs font-black text-[#00b0ff]">18.680 L <span className="text-[10px] font-light text-slate-400">(93%)</span></span>
+                    </div>
+                    {/* Level Bar */}
+                    <div className="w-full h-3 bg-slate-900 rounded-lg overflow-hidden border border-slate-800">
+                      <motion.div 
+                        initial={{ width: 0 }}
+                        whileInView={{ width: '93%' }}
+                        transition={{ duration: 1, delay: 0.3 }}
+                        className="h-full bg-gradient-to-r from-[#0082c8] to-[#00b0ff]"
+                      />
+                    </div>
+                    <div className="flex justify-between items-center mt-1.5 text-[9px] font-mono text-slate-500">
+                      <span>Temp: 15.8°C</span>
+                      <span>Agua: 4mm</span>
+                    </div>
                   </div>
-                  <div className="bg-gray-900 p-4 border border-gray-700">
-                    <p className="text-[10px] uppercase text-gray-500 font-bold mb-1">Load</p>
-                    <p className="text-xl font-bold">88%</p>
+
+                  {/* Tank 2 */}
+                  <div className="bg-slate-950/80 border border-slate-800/60 p-4 rounded-sm">
+                    <div className="flex justify-between items-center mb-1.5">
+                      <span className="text-xs font-bold text-gray-200">Cisterna Nafta Super <span className="text-[9px] font-mono text-slate-400">(tank_03)</span></span>
+                      <span className="text-xs font-black text-emerald-400">13.480 L <span className="text-[10px] font-light text-slate-400">(90%)</span></span>
+                    </div>
+                    {/* Level Bar */}
+                    <div className="w-full h-3 bg-slate-900 rounded-lg overflow-hidden border border-slate-800">
+                      <motion.div 
+                        initial={{ width: 0 }}
+                        whileInView={{ width: '90%' }}
+                        transition={{ duration: 1, delay: 0.4 }}
+                        className="h-full bg-gradient-to-r from-emerald-600 to-emerald-400"
+                      />
+                    </div>
+                    <div className="flex justify-between items-center mt-1.5 text-[9px] font-mono text-slate-500">
+                      <span>Temp: 17.2°C</span>
+                      <span>Agua: 0mm</span>
+                    </div>
                   </div>
+
+                  {/* Tank 3 */}
+                  <div className="bg-slate-950/80 border border-slate-800/60 p-4 rounded-sm">
+                    <div className="flex justify-between items-center mb-1.5">
+                      <span className="text-xs font-bold text-gray-200">Cisterna Gasoil Premium <span className="text-[9px] font-mono text-slate-400">(tank_01)</span></span>
+                      <span className="text-xs font-black text-[#00b0ff]">23.800 L <span className="text-[10px] font-light text-slate-400">(79%)</span></span>
+                    </div>
+                    {/* Level Bar */}
+                    <div className="w-full h-3 bg-slate-900 rounded-lg overflow-hidden border border-slate-800">
+                      <motion.div 
+                        initial={{ width: 0 }}
+                        whileInView={{ width: '79%' }}
+                        transition={{ duration: 1, delay: 0.5 }}
+                        className="h-full bg-gradient-to-r from-blue-700 to-teal-400"
+                      />
+                    </div>
+                    <div className="flex justify-between items-center mt-1.5 text-[9px] font-mono text-slate-500">
+                      <span>Temp: 16.4°C</span>
+                      <span>Agua: 0mm</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-8 pt-4 border-t border-slate-800/60 text-center">
+                  <a 
+                    href="https://nimble-rugelach-c87394.netlify.app/"
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="inline-flex items-center justify-center text-xs text-[#00b0ff] hover:text-red-400 font-extrabold tracking-wider uppercase gap-2 transition-colors cursor-pointer"
+                  >
+                    {language === 'es' ? 'ABRIR DEMO COMPLETA' : 'OPEN FULL LIVE DEMO'}
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </a>
                 </div>
               </div>
             </motion.div>
