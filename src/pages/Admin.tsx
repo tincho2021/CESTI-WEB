@@ -50,17 +50,54 @@ const Admin = () => {
     sessionStorage.removeItem('cesti_admin_auth');
   };
 
-  // Convert uploaded image to Base64
+  // Compress and convert uploaded image to Base64
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, isEditMode = false) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        if (isEditMode && editingProduct) {
-          setEditingProduct({ ...editingProduct, image: reader.result as string });
-        } else {
-          setFormImage(reader.result as string);
-        }
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 600;
+          const MAX_HEIGHT = 600;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height = Math.round((height * MAX_WIDTH) / width);
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width = Math.round((width * MAX_HEIGHT) / height);
+              height = MAX_HEIGHT;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            // Compress to JPEG with 0.75 quality for an optimal size-to-clarity ratio (~40KB)
+            const compressedBase64 = canvas.toDataURL('image/jpeg', 0.75);
+            if (isEditMode && editingProduct) {
+              setEditingProduct({ ...editingProduct, image: compressedBase64 });
+            } else {
+              setFormImage(compressedBase64);
+            }
+          } else {
+            // Fallback to original Base64 if canvas context fails
+            if (isEditMode && editingProduct) {
+              setEditingProduct({ ...editingProduct, image: event.target?.result as string });
+            } else {
+              setFormImage(event.target?.result as string);
+            }
+          }
+        };
       };
       reader.readAsDataURL(file);
     }

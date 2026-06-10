@@ -1,10 +1,11 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ShoppingCart, Menu, X, Cpu } from 'lucide-react';
+import { ShoppingCart, Menu, X } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
 import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
+import Logo from './Logo';
 
 const Navbar = () => {
   const { totalItems } = useCart();
@@ -24,13 +25,11 @@ const Navbar = () => {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-20 items-center">
-          <Link to="/" className="flex items-center space-x-2 group">
-            <div className="w-10 h-10 bg-black flex items-center justify-center rounded-sm group-hover:bg-red-600 transition-colors">
-              <Cpu className="text-white w-6 h-6" />
-            </div>
+          <Link to="/" className="flex items-center space-x-3 group header-logo-link">
+            <Logo variant="icon" className="w-10 h-10 transition-transform duration-500 group-hover:rotate-12" />
             <div className="flex flex-col">
-              <span className="text-xl font-bold tracking-tighter leading-none">C.E.S.T.I</span>
-              <span className="text-[10px] uppercase tracking-widest text-gray-500 font-medium">{t('nav.industrial')}</span>
+              <span className="text-xl font-extrabold tracking-tight text-[#011832] leading-none mb-1">C.E.S.T.I.</span>
+              <span className="text-[9px] uppercase tracking-widest text-gray-400 font-bold">{t('nav.industrial')}</span>
             </div>
           </Link>
 

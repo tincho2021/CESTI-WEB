@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Cpu, Mail, Phone, MapPin, Linkedin, Twitter, Github } from 'lucide-react';
+import { Mail, Phone, MapPin, Linkedin, Twitter, Github } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import Logo from './Logo';
 
 const Footer = () => {
   const { t } = useLanguage();
@@ -11,11 +12,9 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
           <div className="col-span-1 md:col-span-1">
-            <Link to="/" className="flex items-center space-x-2 mb-6">
-              <div className="w-8 h-8 bg-black flex items-center justify-center rounded-sm">
-                <Cpu className="text-white w-5 h-5" />
-              </div>
-              <span className="text-xl font-bold tracking-tighter">C.E.S.T.I</span>
+            <Link to="/" className="flex items-center space-x-3 mb-6 group footer-brand-link">
+              <Logo variant="icon" className="w-9 h-9 transition-transform duration-500 group-hover:rotate-12" />
+              <span className="text-xl font-extrabold tracking-tight text-[#011832]">C.E.S.T.I.</span>
             </Link>
             <p className="text-gray-500 text-sm leading-relaxed mb-6">
               {t('footer.desc')}
