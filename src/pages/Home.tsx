@@ -168,12 +168,12 @@ const Home = () => {
               </div>
               <h2 className="text-5xl font-extrabold tracking-tighter mb-8 leading-tight">
                 {language === 'es' ? 'Plataforma de Monitoreo' : 'IoT Telemetry'} <br />
-                <span className="text-[#00b0ff]">CESTI IoT</span>
+                <span className="text-[#00b0ff]">SENSINA</span>
               </h2>
               <p className="text-gray-400 text-lg mb-8 leading-relaxed">
                 {language === 'es' 
-                  ? 'Nuestra solución de telemedición premium en tiempo real. Monitoree de forma remota tanques, cisternas, despachos de combustibles y flotas mediante hardware ESP32 de alta confiabilidad y de última generación.' 
-                  : 'Our premium real-time telemetry solution. Remotely monitor tanks, cisterns, fuel dispenses, and fleets using highly reliable, cutting-edge ESP32 hardware.'}
+                  ? 'SENSINA, nuestra solución de telemedición premium en tiempo real. Monitoree de forma remota tanques, cisternas, despachos de combustibles y flotas mediante hardware ESP32 de alta confiabilidad y de última generación.' 
+                  : 'SENSINA, our premium real-time telemetry solution. Remotely monitor tanks, cisterns, fuel dispenses, and fleets using highly reliable, cutting-edge ESP32 hardware.'}
               </p>
 
               <div className="space-y-6 mb-12">
@@ -347,7 +347,7 @@ const Home = () => {
                     rel="noopener noreferrer" 
                     className="inline-flex items-center justify-center text-xs text-[#00b0ff] hover:text-red-400 font-extrabold tracking-wider uppercase gap-2 transition-colors cursor-pointer"
                   >
-                    {language === 'es' ? 'ABRIR DEMO COMPLETA' : 'OPEN FULL LIVE DEMO'}
+                    {language === 'es' ? 'ABRIR DEMO COMPLETA SENSINA' : 'OPEN FULL SENSINA LIVE DEMO'}
                     <ArrowRight className="w-3.5 h-3.5" />
                   </a>
                 </div>

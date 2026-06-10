@@ -15,7 +15,7 @@ const translations: Translations = {
   'nav.shop': { en: 'Shop', es: 'Tienda' },
   'nav.solutions': { en: 'Solutions', es: 'Soluciones' },
   'nav.smart': { en: 'Smart Systems', es: 'Sistemas Smart' },
-  'nav.industrial': { en: 'Industrial Systems', es: 'Sistemas Industriales' },
+  'nav.industrial': { en: 'Strategic Center for Technological & Industrial Solutions', es: 'Centro Estratégico de Soluciones Tecnológicas e Industriales' },
   
   // Hero
   'hero.tag': { en: 'Precision Engineering', es: 'Ingeniería de Precisión' },
