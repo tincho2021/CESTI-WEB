@@ -1,0 +1,35 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default Catch-All Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Products Catalog Collection: Publicly readable, strictly validated writes
+    match /products/{productId} {
+      allow read, get, list: if true;
+      allow create: if isValidProduct(request.resource.data);
+      allow update: if isValidProduct(request.resource.data);
+      allow delete: if true;
+    }
+
+    // Helper functions for validation
+    function isValidProduct(data) {
+      return data.keys().hasAll(['id', 'name', 'price', 'category', 'image', 'description', 'smartReady', 'stock'])
+        && data.id is string
+        && data.id.size() <= 128
+        && data.name is string
+        && data.name.size() <= 200
+        && data.price is number
+        && data.category is string
+        && data.category.size() <= 100
+        && data.image is string
+        && data.image.size() <= 2000000
+        && data.description is string
+        && data.description.size() <= 10000
+        && data.smartReady is bool
+        && data.stock is number;
+    }
+  }
+}
