@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useProducts } from '../context/ProductContext';
 import { Product } from '../types';
-import { LogIn, Plus, Trash2, Edit2, Check, X, Upload, Eye, EyeOff, Settings, AlertTriangle, Key } from 'lucide-react';
+import { LogIn, Plus, Trash2, Edit2, Check, X, Upload, Eye, EyeOff, Settings, AlertTriangle, Key, CloudUpload, Database } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 const Admin = () => {
@@ -13,11 +13,30 @@ const Admin = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState('');
+  const [isSeeding, setIsSeeding] = useState(false);
+  const [seedSuccess, setSeedSuccess] = useState(false);
 
   // Products State
-  const { products, addProduct, removeProduct, updateProduct } = useProducts();
+  const { products, addProduct, removeProduct, updateProduct, seedDefaultProducts } = useProducts();
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isAdding, setIsAdding] = useState(false);
+
+  const handleSeedDefaultCatalog = async () => {
+    if (window.confirm('¿Seguro que deseas restaurar/sincronizar los 13 productos oficiales de CESTI con la base de datos de Firestore? Esto creará o actualizará todos los elementos del catálogo inicial.')) {
+      setIsSeeding(true);
+      setSeedSuccess(false);
+      try {
+        await seedDefaultProducts();
+        setSeedSuccess(true);
+        setTimeout(() => setSeedSuccess(false), 4000);
+      } catch (err) {
+        console.error('Error seeding default products:', err);
+        alert('Error al restaurar el catálogo oficial de CESTI.');
+      } finally {
+        setIsSeeding(false);
+      }
+    }
+  };
 
   // Form State
   const [formName, setFormName] = useState('');
@@ -275,9 +294,35 @@ const Admin = () => {
               <span className="text-xs font-bold uppercase tracking-widest">SISTEMA ADMINISTRATIVO ACTIVO</span>
             </div>
             <h1 className="text-4xl font-bold tracking-tighter text-gray-900 uppercase">CESTI CONTROL PANEL</h1>
-            <p className="text-gray-500 text-sm">Gestiona el catálogo de productos disponibles en tiempo real con almacenamiento local persistente.</p>
+            <p className="text-gray-500 text-sm">Gestiona el catálogo de productos de CESTI en tiempo real sincronizado con Firestore cloud.</p>
           </div>
-          <div className="flex gap-4">
+          <div className="flex flex-wrap gap-4">
+            <button
+              onClick={handleSeedDefaultCatalog}
+              disabled={isSeeding}
+              className={`px-6 py-3 font-bold uppercase tracking-widest text-xs transition-all flex items-center space-x-2 rounded-sm cursor-pointer ${
+                seedSuccess 
+                  ? 'bg-green-600 text-white hover:bg-green-700' 
+                  : 'bg-red-600 hover:bg-red-700 text-white shadow-sm'
+              }`}
+            >
+              {isSeeding ? (
+                <>
+                  <span className="animate-pulse mr-1">⚡</span>
+                  <span>Sincronizando...</span>
+                </>
+              ) : seedSuccess ? (
+                <>
+                  <Check className="w-4 h-4" />
+                  <span>¡Éxito!</span>
+                </>
+              ) : (
+                <>
+                  <CloudUpload className="w-4 h-4" />
+                  <span>Subir Catálogo Base</span>
+                </>
+              )}
+            </button>
             <button
               onClick={() => {
                 resetForm();
