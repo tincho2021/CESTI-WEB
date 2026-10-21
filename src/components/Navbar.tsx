@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { lastVistaQuoteNumber } from '../quote/storage';
 import { ShoppingCart, Menu, X, Settings } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -23,7 +24,17 @@ const Navbar = () => {
   ];
 
   const quoteActive = location.pathname.startsWith('/cotizacion-online');
-  const demoActive = location.pathname.startsWith('/demo-visual');
+  const vistaActive = location.pathname.startsWith('/vista-3d') || location.pathname.startsWith('/demo-visual');
+  const [vistaReady, setVistaReady] = useState(() => Boolean(lastVistaQuoteNumber()));
+  useEffect(() => {
+    const refresh = () => setVistaReady(Boolean(lastVistaQuoteNumber()));
+    window.addEventListener('cesti-vista', refresh);
+    window.addEventListener('storage', refresh);
+    return () => {
+      window.removeEventListener('cesti-vista', refresh);
+      window.removeEventListener('storage', refresh);
+    };
+  }, []);
 
   const isLinkActive = (path: string) => {
     const current = location.pathname + location.search;
@@ -62,15 +73,21 @@ const Navbar = () => {
               </Link>
             ))}
 
-            <Link
-              to="/demo-visual"
-              className={cn(
-                "px-3 py-2 text-[10px] font-bold uppercase tracking-widest rounded-sm border transition-colors",
-                demoActive ? "border-[#011832] bg-[#011832] text-white" : "border-gray-200 text-[#011832] hover:border-[#011832]"
-              )}
-            >
-              Demo visual
-            </Link>
+            {vistaReady ? (
+              <Link
+                to="/vista-3d"
+                className={cn(
+                  "px-3 py-2 text-[10px] font-bold uppercase tracking-widest rounded-sm border transition-colors",
+                  vistaActive ? "border-[#011832] bg-[#011832] text-white" : "border-gray-200 text-[#011832] hover:border-[#011832]"
+                )}
+              >
+                Vista 3D
+              </Link>
+            ) : (
+              <span title="Se habilita cuando guardás o cotizás una instalación" className="px-3 py-2 text-[10px] font-bold uppercase tracking-widest rounded-sm border border-gray-200 text-gray-300 cursor-not-allowed">
+                Vista 3D
+              </span>
+            )}
             <Link
               to="/cotizacion-online"
               className={cn(
@@ -129,9 +146,15 @@ const Navbar = () => {
 
           {/* Mobile Menu Toggle */}
           <div className="lg:hidden flex items-center space-x-2">
-            <Link to="/demo-visual" className="px-2 py-1.5 border border-[#011832] text-[#011832] text-[9px] font-bold uppercase tracking-widest">
-              Demo
-            </Link>
+            {vistaReady ? (
+              <Link to="/vista-3d" className="px-2 py-1.5 border border-[#011832] text-[#011832] text-[9px] font-bold uppercase tracking-widest">
+                Vista 3D
+              </Link>
+            ) : (
+              <span title="Se habilita cuando guardás o cotizás" className="px-2 py-1.5 border border-gray-200 text-gray-300 text-[9px] font-bold uppercase tracking-widest">
+                Vista 3D
+              </span>
+            )}
             <Link to="/cotizacion-online" className="px-2 py-1.5 bg-[#011832] text-white text-[9px] font-bold uppercase tracking-widest">
               Cotizar
             </Link>
@@ -169,13 +192,17 @@ const Navbar = () => {
                 {link.name}
               </Link>
             ))}
-            <Link
-              to="/demo-visual"
-              onClick={() => setIsOpen(false)}
-              className="block text-lg font-bold text-[#011832]"
-            >
-              Demo visual
-            </Link>
+            {vistaReady ? (
+              <Link
+                to="/vista-3d"
+                onClick={() => setIsOpen(false)}
+                className="block text-lg font-bold text-[#011832]"
+              >
+                Vista 3D
+              </Link>
+            ) : (
+              <span className="block text-lg font-bold text-gray-300">Vista 3D</span>
+            )}
             <Link
               to="/cotizacion-online"
               onClick={() => setIsOpen(false)}

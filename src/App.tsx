@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Navigate, Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { CartProvider } from './context/CartContext';
 import { LanguageProvider } from './context/LanguageContext';
@@ -13,7 +13,7 @@ import Checkout from './pages/Checkout';
 import Contact from './pages/Contact';
 import Admin from './pages/Admin';
 import CotizacionOnline from './pages/CotizacionOnline';
-import DemoVisual from './pages/DemoVisual';
+import Vista3D from './pages/Vista3D';
 import WhatsAppButton from './components/WhatsAppButton';
 
 // Scroll to top on route change
@@ -36,7 +36,7 @@ function ScrollToTop() {
 
 function Frame() {
   const { pathname } = useLocation();
-  const studio = pathname.startsWith('/cotizacion-online') || pathname.startsWith('/demo-visual');
+  const studio = pathname.startsWith('/cotizacion-online') || pathname.startsWith('/vista-3d') || pathname.startsWith('/demo-visual');
 
   return (
     <div className="min-h-screen bg-white font-sans text-gray-900 selection:bg-red-600 selection:text-white">
@@ -51,7 +51,8 @@ function Frame() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/cotizacion-online" element={<CotizacionOnline />} />
-          <Route path="/demo-visual" element={<DemoVisual />} />
+          <Route path="/vista-3d" element={<Vista3D />} />
+          <Route path="/demo-visual" element={<Navigate to="/vista-3d" replace />} />
         </Routes>
       </main>
       {!studio && <Footer />}

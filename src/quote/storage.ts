@@ -23,11 +23,23 @@ function readLocalQuotes(): Record<string, StoredQuote> {
   }
 }
 
+export const VISTA_KEY = 'cesti-vista-3d';
+
 function rememberQuote(quote: StoredQuote) {
   const all = readLocalQuotes();
   all[quote.recoveryCode] = quote;
   all[`public:${quote.quoteNumber}`] = { ...quote, recoveryCode: '' };
   localStorage.setItem(LOCAL_QUOTES, JSON.stringify(all));
+  localStorage.setItem(VISTA_KEY, quote.quoteNumber);
+  window.dispatchEvent(new Event('cesti-vista'));
+}
+
+export function lastVistaQuoteNumber(): string {
+  const marked = localStorage.getItem(VISTA_KEY);
+  if (marked) return marked;
+  const publics = Object.entries(readLocalQuotes()).filter(([key]) => key.startsWith('public:'));
+  publics.sort((left, right) => (right[1].updatedAt || '').localeCompare(left[1].updatedAt || ''));
+  return publics[0] ? publics[0][0].slice('public:'.length) : '';
 }
 
 export function assertScene(scene: SceneState) {
@@ -201,7 +213,10 @@ export async function saveQuote(input: {
     });
     if (response.ok) {
       const payload = await response.json() as { quote?: StoredQuote };
-      if (payload.quote?.recoveryCode && payload.quote.bom) return payload.quote;
+      if (payload.quote?.recoveryCode && payload.quote.bom) {
+        rememberQuote(payload.quote);
+        return payload.quote;
+      }
     }
   } catch {
     // Local Vite has no function. The same engine writes below.
