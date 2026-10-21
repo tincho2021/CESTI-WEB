@@ -3,7 +3,7 @@ import QuotesAdmin from './admin/QuotesAdmin';
 import RulesAdmin from './admin/RulesAdmin';
 import { useProducts } from '../context/ProductContext';
 import { Product } from '../types';
-import { LogIn, Plus, Trash2, Edit2, Check, X, Upload, Eye, EyeOff, Settings, AlertTriangle, Key, CloudUpload, Database } from 'lucide-react';
+import { LogIn, Plus, Trash2, Edit2, Check, X, Upload, Eye, EyeOff, Settings, AlertTriangle, CloudUpload, Database } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 const MAX_DOC_BYTES = 750_000;
@@ -325,31 +325,6 @@ const Admin = () => {
             </div>
             <h2 className="text-3xl font-bold tracking-tighter text-gray-900 uppercase">CESTI ADMIN</h2>
             <p className="text-sm text-gray-500 mt-1 uppercase tracking-widest font-bold">Acceso Confidencial</p>
-          </div>
-
-          {/* Secure Hint Alert */}
-          <div className="bg-red-50 border-l-4 border-red-600 p-4 mb-6 rounded-sm text-sm text-red-900">
-            <div className="flex items-center space-x-2 font-bold mb-1">
-              <Key className="w-4 h-4 text-red-600 shrink-0" />
-              <span>Credenciales Oficiales de CESTI:</span>
-            </div>
-            <p className="font-mono text-xs mt-1 mb-3">
-              <span className="font-bold">Usuario:</span> {SECRET_USER}<br/>
-              <span className="font-bold">Contraseña:</span> {SECRET_PASS}
-            </p>
-            <button
-              type="button"
-              onClick={() => {
-                setUsername(SECRET_USER);
-                setPassword(SECRET_PASS);
-                setIsLoggedIn(true);
-                sessionStorage.setItem('cesti_admin_auth', 'true');
-                setLoginError('');
-              }}
-              className="w-full bg-red-600 hover:bg-red-700 text-white text-xs font-bold uppercase tracking-widest py-2 px-3 rounded-sm transition-colors cursor-pointer"
-            >
-              Autocompletar y Entrar Directo
-            </button>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-6">
