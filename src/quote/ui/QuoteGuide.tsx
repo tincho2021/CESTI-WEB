@@ -41,9 +41,9 @@ export const GUIDE_STEPS: GuideStep[] = [
   {
     id: 'probe',
     title: 'Medí el nivel del tanque',
-    where: 'Columna izquierda, Piezas, sección Telemedición. El botón se llama Sonda de nivel.',
-    pieceIds: ['probe'],
-    body: 'Tocá Sonda de nivel y soltala sobre el tanque. Si no van a telemedir, omití el paso.',
+    where: 'En la playa, presioná el tanque. Aparece un cartel con el botón Agregar sonda.',
+    pieceIds: [],
+    body: 'Tocá Agregar sonda. Eso sí la instala en el tanque. Soltarla desde el menú no la une. Si no van a telemedir, omití el paso.',
     done: (scene) => scene.objects.some((object) => object.role === 'probe'),
   },
   {

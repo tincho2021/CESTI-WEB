@@ -939,7 +939,7 @@ export default function QuoteStudio() {
               <p className="text-sm text-stone-600 mt-1">Elegí una pieza y colocala en la playa.</p>
             </div>
           )}
-          {!diagram && selected && tool !== 'connect' && !pendingLink && !paidAsk && !story && guide === 'off' && (
+          {!diagram && selected && tool !== 'connect' && !pendingLink && !paidAsk && !story && (guide === 'off' || nextGuideStep(scene, guideSkipped)?.id === 'probe') && (
             <InspectCard
               object={selected}
               scene={scene}
