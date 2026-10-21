@@ -1,5 +1,7 @@
 import { jsPDF } from 'jspdf';
+import { PDFDocument } from 'pdf-lib';
 import QRCode from 'qrcode';
+import type { Product } from '../types';
 import { COMPANY, installationLabel } from './company';
 import { money } from './specs';
 import { ACTIVITIES, QUOTE_STATUSES, type Finding, type StoredQuote } from './types';
@@ -17,7 +19,72 @@ function statusLabel(id: string): string {
   return QUOTE_STATUSES.find((item) => item.id === id)?.label ?? id;
 }
 
-export async function buildQuotePdf(quote: StoredQuote, findings: Finding[], origin: string): Promise<Blob> {
+export function technicalDocsForQuote(quote: StoredQuote, products: Product[]): Product[] {
+  const ids: string[] = [];
+  const seen = new Set<string>();
+  const remember = (id: string | null | undefined) => {
+    if (!id || seen.has(id)) return;
+    seen.add(id);
+    ids.push(id);
+  };
+  quote.bom.lines.forEach((line) => {
+    if (line.section !== 'infrastructure') remember(line.productId);
+  });
+  quote.scene.objects.forEach((object) => remember(object.productId));
+  const probeQuoted = quote.bom.lines.some((line) => line.section !== 'infrastructure' && /sonda/i.test(line.name));
+  if (probeQuoted) {
+    products.filter((product) => /sonda/i.test(product.name)).forEach((product) => remember(product.id));
+  }
+  return ids
+    .map((id) => products.find((product) => product.id === id))
+    .filter((product): product is Product => Boolean(product?.technicalDoc && product?.technicalDocKind));
+}
+
+function dataUrlBytes(dataUrl: string): Uint8Array {
+  const base64 = dataUrl.split(',')[1] || '';
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let index = 0; index < binary.length; index += 1) bytes[index] = binary.charCodeAt(index);
+  return bytes;
+}
+
+async function appendTechnicalDocs(blob: Blob, documents: Product[]): Promise<Blob> {
+  if (documents.length === 0) return blob;
+  const main = await PDFDocument.load(await blob.arrayBuffer());
+  for (const product of documents) {
+    const data = product.technicalDoc || '';
+    if (!data.startsWith('data:')) continue;
+    try {
+      if (product.technicalDocKind === 'pdf') {
+        const cover = main.addPage([595.28, 841.89]);
+        cover.drawText('Documentación técnica', { x: 40, y: 780, size: 16 });
+        const title = product.name.slice(0, 80);
+        cover.drawText(title, { x: 40, y: 752, size: 12 });
+        const extra = await PDFDocument.load(dataUrlBytes(data));
+        const copied = await main.copyPages(extra, extra.getPageIndices());
+        copied.forEach((page) => main.addPage(page));
+      } else {
+        const bytes = dataUrlBytes(data);
+        const image = data.startsWith('data:image/png') ? await main.embedPng(bytes) : await main.embedJpg(bytes);
+        const page = main.addPage([595.28, 841.89]);
+        page.drawText('Documentación técnica', { x: 40, y: 800, size: 16 });
+        page.drawText(product.name.slice(0, 80), { x: 40, y: 776, size: 12 });
+        const maxWidth = page.getWidth() - 80;
+        const maxHeight = page.getHeight() - 140;
+        const scale = Math.min(maxWidth / image.width, maxHeight / image.height);
+        const width = image.width * scale;
+        const height = image.height * scale;
+        page.drawImage(image, { x: 40, y: page.getHeight() - 110 - height, width, height });
+      }
+    } catch {
+      const page = main.addPage([595.28, 841.89]);
+      page.drawText(`No se pudo adjuntar la ficha de ${product.name.slice(0, 70)}.`, { x: 40, y: 780, size: 12 });
+    }
+  }
+  return new Blob([await main.save() as BlobPart], { type: 'application/pdf' });
+}
+
+export async function buildQuotePdf(quote: StoredQuote, findings: Finding[], origin: string, products: Product[] = []): Promise<Blob> {
   const pdf = new jsPDF({ unit: 'mm', format: 'a4' });
   const pageWidth = pdf.internal.pageSize.getWidth();
   const pageHeight = pdf.internal.pageSize.getHeight();
@@ -249,11 +316,11 @@ export async function buildQuotePdf(quote: StoredQuote, findings: Finding[], ori
   const secretNote = 'El código QR abre la cotización en consulta. Para modificar el proyecto hace falta este código de recuperación. El número público no alcanza para editar.';
   pdf.text(pdf.splitTextToSize(secretNote, pageWidth - margin * 2), margin, y);
 
-  return pdf.output('blob');
+  return appendTechnicalDocs(pdf.output('blob'), technicalDocsForQuote(quote, products));
 }
 
-export async function downloadQuotePdf(quote: StoredQuote, findings: Finding[], origin: string) {
-  const blob = await buildQuotePdf(quote, findings, origin);
+export async function downloadQuotePdf(quote: StoredQuote, findings: Finding[], origin: string, products: Product[] = []) {
+  const blob = await buildQuotePdf(quote, findings, origin, products);
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement('a');
   anchor.href = url;

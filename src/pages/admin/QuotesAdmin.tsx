@@ -136,7 +136,7 @@ export default function QuotesAdmin() {
             <div className="flex flex-wrap gap-2">
               <button type="button" className="px-3 py-2 bg-black text-white text-[10px] font-bold uppercase" onClick={() => {
                 const settings = defaultSettings();
-                void downloadQuotePdf(selected, analyzeInstallation(selected.scene, settings, products).findings, window.location.origin);
+                void downloadQuotePdf(selected, analyzeInstallation(selected.scene, settings, products).findings, window.location.origin, products);
               }}>Descargar PDF</button>
               <button type="button" className="px-3 py-2 border border-gray-300 text-[10px] font-bold uppercase" onClick={() => {
                 const blob = new Blob([JSON.stringify(selected, null, 2)], { type: 'application/json' });

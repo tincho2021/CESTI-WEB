@@ -2,12 +2,14 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { products } from '../data/products';
 import { buildBom } from './bom';
+import { technicalDocsForQuote } from './pdf';
 import { assessConnection } from './engine';
 import { createObject, deviceLabel, emptyScene } from './library';
 import { defaultSettings } from './settings';
 import { hoseCountOf, installProbe, migrateScene, nearestTank, possibleLinks, presentScene, probeVisual, rotateObject, suggestConnections, syncFuelLinks, visibleConnectionIds, withHoses } from './scene/logic';
 import { portsFor } from './scene/ports';
-import type { SceneConnection, SceneState } from './types';
+import type { SceneConnection, SceneState, StoredQuote } from './types';
+import type { Product } from '../types';
 
 const settings = defaultSettings();
 
@@ -227,4 +229,15 @@ test('el transmisor queda en el tanque asociado y no en el más cercano', () => 
   assert.equal(stuck?.attachedTo, vertical.id);
   assert.equal(host?.props.comms, 'wireless');
   assert.equal(other?.props.comms, 'wired');
+});
+
+test('la ficha técnica se adjunta solo si el producto está en la cotización', () => {
+  const quoted = { id: 'prod-004', name: 'CONSOLA', technicalDoc: 'data:application/pdf;base64,QQ==', technicalDocKind: 'pdf' } as Product;
+  const probeSheet = { id: 'prod-011', name: 'SONDA RIGIDA', technicalDoc: 'data:application/pdf;base64,QQ==', technicalDocKind: 'pdf' } as Product;
+  const unused = { id: 'prod-099', name: 'OTRO', technicalDoc: 'data:image/jpeg;base64,QQ==', technicalDocKind: 'image' } as Product;
+  const quote = {
+    bom: { lines: [{ section: 'equipment', productId: 'prod-004' }, { section: 'equipment', productId: null, name: 'Sonda de telemedición cableada' }, { section: 'infrastructure', productId: null }] },
+    scene: { objects: [] },
+  } as unknown as StoredQuote;
+  assert.deepEqual(technicalDocsForQuote(quote, [quoted, probeSheet, unused]).map((product) => product.id), ['prod-004', 'prod-011']);
 });

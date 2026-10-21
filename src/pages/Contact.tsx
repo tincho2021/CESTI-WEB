@@ -18,7 +18,7 @@ const Contact = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('https://formsubmit.co/ajax/martinrodriguezmelgarejo@gmail.com', {
+      const response = await fetch('https://formsubmit.co/ajax/contacto@cesti.com.ar', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -39,14 +39,14 @@ const Contact = () => {
         // Fallback to mailto if API fails
         const subject = encodeURIComponent(`Nuevo mensaje de ${formData.name}`);
         const body = encodeURIComponent(`Nombre: ${formData.name}\nEmail: ${formData.email}\n\nMensaje:\n${formData.message}`);
-        window.location.href = `mailto:martinrodriguezmelgarejo@gmail.com?subject=${subject}&body=${body}`;
+        window.location.href = `mailto:contacto@cesti.com.ar?subject=${subject}&body=${body}`;
       }
     } catch (error) {
       console.error('Error submitting form:', error);
       // Fallback to mailto on network error
       const subject = encodeURIComponent(`Nuevo mensaje de ${formData.name}`);
       const body = encodeURIComponent(`Nombre: ${formData.name}\nEmail: ${formData.email}\n\nMensaje:\n${formData.message}`);
-      window.location.href = `mailto:martinrodriguezmelgarejo@gmail.com?subject=${subject}&body=${body}`;
+      window.location.href = `mailto:contacto@cesti.com.ar?subject=${subject}&body=${body}`;
     } finally {
       setIsSubmitting(false);
     }
@@ -90,7 +90,7 @@ const Contact = () => {
                 </div>
                 <div>
                   <p className="text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-1">{t('contact.email_us')}</p>
-                  <p className="text-lg font-bold text-gray-900">martinrodriguezmelgarejo@gmail.com</p>
+                  <p className="text-lg font-bold text-gray-900">contacto@cesti.com.ar</p>
                 </div>
               </div>
 

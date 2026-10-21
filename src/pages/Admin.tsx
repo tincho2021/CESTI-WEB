@@ -6,6 +6,105 @@ import { Product } from '../types';
 import { LogIn, Plus, Trash2, Edit2, Check, X, Upload, Eye, EyeOff, Settings, AlertTriangle, Key, CloudUpload, Database } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
+const MAX_DOC_BYTES = 750_000;
+
+function readTechnicalFile(file: File): Promise<{ data: string; name: string; kind: 'image' | 'pdf' } | null> {
+  return new Promise((resolve) => {
+    const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+    const isImage = file.type.startsWith('image/');
+    if (!isPdf && !isImage) {
+      alert('Subí una foto o un PDF.');
+      resolve(null);
+      return;
+    }
+    if (isPdf && file.size > MAX_DOC_BYTES) {
+      alert('El PDF supera 750 KB. Comprimilo y volvé a subirlo para que pueda guardarse con el producto.');
+      resolve(null);
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = String(reader.result || '');
+      if (!isImage) {
+        resolve({ data: result, name: file.name, kind: 'pdf' });
+        return;
+      }
+      const image = new Image();
+      image.onload = () => {
+        const canvas = document.createElement('canvas');
+        const limit = 1600;
+        const scale = Math.min(1, limit / Math.max(image.width, image.height));
+        canvas.width = Math.round(image.width * scale);
+        canvas.height = Math.round(image.height * scale);
+        const context = canvas.getContext('2d');
+        if (!context) {
+          resolve({ data: result, name: file.name, kind: 'image' });
+          return;
+        }
+        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+        let quality = 0.82;
+        let data = canvas.toDataURL('image/jpeg', quality);
+        while (data.length > MAX_DOC_BYTES * 1.4 && quality > 0.5) {
+          quality -= 0.08;
+          data = canvas.toDataURL('image/jpeg', quality);
+        }
+        resolve({ data, name: file.name, kind: 'image' });
+      };
+      image.onerror = () => resolve(null);
+      image.src = result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function TechnicalDocField({
+  name,
+  kind,
+  data,
+  onPick,
+  onClear,
+}: {
+  name?: string | null;
+  kind?: 'image' | 'pdf' | null;
+  data?: string | null;
+  onPick: (file: File) => void;
+  onClear: () => void;
+}) {
+  return (
+    <div>
+      <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Documentación técnica</label>
+      <p className="text-[11px] text-gray-500 mb-2">Foto o PDF, hasta 750 KB. Si este producto entra en la cotización, la ficha se agrega al final del presupuesto.</p>
+      <div className="flex items-center gap-2">
+        <label className="cursor-pointer bg-black text-white px-3 py-2 text-[10px] font-bold uppercase tracking-widest hover:bg-red-600 transition-colors rounded-sm flex items-center space-x-2">
+          <Upload className="w-3.5 h-3.5" />
+          <span>{data ? 'Cambiar ficha' : 'Subir foto o PDF'}</span>
+          <input
+            type="file"
+            accept="image/*,application/pdf"
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              if (file) onPick(file);
+              event.target.value = '';
+            }}
+            className="hidden"
+          />
+        </label>
+        {data && (
+          <button type="button" onClick={onClear} className="text-[10px] font-bold uppercase tracking-widest text-red-600">
+            Quitar
+          </button>
+        )}
+      </div>
+      {name && <p className="text-[11px] text-gray-600 mt-2">{kind === 'pdf' ? 'PDF' : 'Foto'}: {name}</p>}
+      {kind === 'image' && data && (
+        <div className="border border-gray-100 p-2 bg-gray-50 rounded mt-2">
+          <img src={data} alt="Ficha técnica" className="h-24 w-auto mx-auto object-contain rounded" />
+        </div>
+      )}
+    </div>
+  );
+}
+
 const Admin = () => {
   // Authentication State
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
@@ -48,6 +147,9 @@ const Admin = () => {
   const [formStock, setFormStock] = useState(1);
   const [formSpecs, setFormSpecs] = useState<[string, string][]>([['', '']]);
   const [formDepartment, setFormDepartment] = useState<'combustible' | 'electronica'>('combustible');
+  const [formTechnicalDoc, setFormTechnicalDoc] = useState<string | null>(null);
+  const [formTechnicalDocName, setFormTechnicalDocName] = useState<string | null>(null);
+  const [formTechnicalDocKind, setFormTechnicalDocKind] = useState<'image' | 'pdf' | null>(null);
 
   // Handle Login
   // Secret credentials
@@ -154,6 +256,9 @@ const Admin = () => {
     setFormStock(1);
     setFormSpecs([['', '']]);
     setFormDepartment('combustible');
+    setFormTechnicalDoc(null);
+    setFormTechnicalDocName(null);
+    setFormTechnicalDocKind(null);
     setIsAdding(false);
     setEditingProduct(null);
   };
@@ -184,6 +289,9 @@ const Admin = () => {
       stock: Number(formStock),
       specs: specsRecord,
       department: formDepartment,
+      technicalDoc: formTechnicalDoc,
+      technicalDocName: formTechnicalDocName,
+      technicalDocKind: formTechnicalDocKind,
     });
 
     resetForm();
@@ -597,6 +705,25 @@ const Admin = () => {
                       </div>
                     </div>
 
+                    <TechnicalDocField
+                      name={formTechnicalDocName}
+                      kind={formTechnicalDocKind}
+                      data={formTechnicalDoc}
+                      onPick={(file) => {
+                        void readTechnicalFile(file).then((doc) => {
+                          if (!doc) return;
+                          setFormTechnicalDoc(doc.data);
+                          setFormTechnicalDocName(doc.name);
+                          setFormTechnicalDocKind(doc.kind);
+                        });
+                      }}
+                      onClear={() => {
+                        setFormTechnicalDoc(null);
+                        setFormTechnicalDocName(null);
+                        setFormTechnicalDocKind(null);
+                      }}
+                    />
+
                     <div>
                       <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Descripción Española</label>
                       <textarea
@@ -803,6 +930,29 @@ const Admin = () => {
                         </div>
                       </div>
                     </div>
+
+                    <TechnicalDocField
+                      name={editingProduct.technicalDocName}
+                      kind={editingProduct.technicalDocKind}
+                      data={editingProduct.technicalDoc}
+                      onPick={(file) => {
+                        void readTechnicalFile(file).then((doc) => {
+                          if (!doc) return;
+                          setEditingProduct({
+                            ...editingProduct,
+                            technicalDoc: doc.data,
+                            technicalDocName: doc.name,
+                            technicalDocKind: doc.kind,
+                          });
+                        });
+                      }}
+                      onClear={() => setEditingProduct({
+                        ...editingProduct,
+                        technicalDoc: null,
+                        technicalDocName: null,
+                        technicalDocKind: null,
+                      })}
+                    />
 
                     <div>
                       <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Descripción</label>

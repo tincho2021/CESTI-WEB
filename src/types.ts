@@ -9,6 +9,9 @@ export interface Product {
   smartReady: boolean;
   stock: number;
   department?: 'combustible' | 'electronica';
+  technicalDoc?: string | null;
+  technicalDocName?: string | null;
+  technicalDocKind?: 'image' | 'pdf' | null;
 }
 
 export interface CartItem extends Product {

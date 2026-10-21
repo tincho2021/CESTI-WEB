@@ -1,7 +1,7 @@
 export const COMPANY = {
   name: 'C.E.S.T.I.',
   legal: 'Centro Estratégico de Soluciones Tecnológicas e Industriales',
-  email: 'martinrodriguezmelgarejo@gmail.com',
+  email: 'contacto@cesti.com.ar',
   phone: '+54 11 21 82 93 46',
   address: 'ROSALES 35, Ramos Mejía, Buenos Aires, Argentina',
 };

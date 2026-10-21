@@ -706,7 +706,7 @@ export default function QuoteStudio() {
       setError(null);
       if (action === 'pdf') {
         const findings = analyzeInstallation(saved.scene, settings, products).findings;
-        await downloadQuotePdf(saved, findings, window.location.origin);
+        await downloadQuotePdf(saved, findings, window.location.origin, products);
       }
     } catch (saveError) {
       setError(friendlyError(saveError, 'No se pudo guardar el proyecto.'));
