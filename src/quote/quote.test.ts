@@ -3,6 +3,7 @@ import { test } from 'node:test';
 import { products } from '../data/products';
 import { buildBom } from './bom';
 import { technicalDocsForQuote } from './pdf';
+import { nextGuideStep } from './ui/QuoteGuide';
 import { assessConnection } from './engine';
 import { createObject, deviceLabel, emptyScene } from './library';
 import { defaultSettings } from './settings';
@@ -240,4 +241,13 @@ test('la ficha técnica se adjunta solo si el producto está en la cotización',
     scene: { objects: [] },
   } as unknown as StoredQuote;
   assert.deepEqual(technicalDocsForQuote(quote, [quoted, probeSheet, unused]).map((product) => product.id), ['prod-004', 'prod-011']);
+});
+
+const GUIDE_SKIP_ALL = ['tank', 'pump', 'office', 'probe', 'console', 'suction'];
+
+test('el asistente deja omitir un paso que no aplica', () => {
+  const scene = emptyScene();
+  assert.equal(nextGuideStep(scene, [])?.id, 'tank');
+  assert.equal(nextGuideStep(scene, ['tank'])?.id, 'pump');
+  assert.equal(nextGuideStep(scene, GUIDE_SKIP_ALL)?.id, 'quote');
 });

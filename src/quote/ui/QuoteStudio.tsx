@@ -36,6 +36,7 @@ import InspectCard from './InspectCard';
 import LibraryPanel from './LibraryPanel';
 import StatusBar from './StatusBar';
 import TopologyView from './TopologyView';
+import QuoteGuide, { readGuide, writeGuide } from './QuoteGuide';
 
 const LINK_ORDER: ConnectionType[] = ['sensor', 'wireless', 'process', 'dispenser-control', 'ethernet', 'rs485', 'wifi', 'cloud', 'alarm', 'association'];
 const STORY_DATA = new Set<ConnectionType>(['sensor', 'wireless', 'rs485', 'ethernet', 'wifi', 'cloud', 'dispenser-control']);
@@ -129,6 +130,9 @@ export default function QuoteStudio() {
   const [busy, setBusy] = useState(false);
   const [mobilePanel, setMobilePanel] = useState<'library' | 'inspector' | null>('library');
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [guide, setGuide] = useState<'off' | 'ask' | 'on'>('off');
+  const [guideSkipped, setGuideSkipped] = useState<string[]>([]);
+  const editLock = useRef(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const history = useRef<SceneState[]>([]);
   const future = useRef<SceneState[]>([]);
@@ -836,9 +840,18 @@ export default function QuoteStudio() {
               onDuplicate: duplicateSelected,
               onRemove: removeSelected,
               onConnect: () => beginConnect(selectedId, null),
-              onEdit: () => { setSheetOpen(true); setMobilePanel('inspector'); },
+              onEdit: () => {
+                editLock.current = true;
+                setSheetOpen(true);
+                setMobilePanel('inspector');
+                setMessage('Completá los datos de esta pieza. Lo que no aplique, dejalo vacío.');
+              },
             } : undefined}
             onSelect={(id) => {
+              if (!id && editLock.current) {
+                editLock.current = false;
+                return;
+              }
               const picked = sceneRef.current.objects.find((object) => object.id === id);
               const resolved = picked?.role === 'probe' && picked.attachedTo ? picked.attachedTo : id;
               if (tool === 'connect' && resolved) {
@@ -898,7 +911,29 @@ export default function QuoteStudio() {
               />
             </div>
           )}
-          {!diagram && !selected && !armed && tool !== 'connect' && !story && scene.objects.every((object) => Boolean(object.attachedTo)) && (
+          {started && guide === 'ask' && !diagram && (
+            <div className="absolute left-3 top-3 z-20 w-72 rounded-3xl bg-[#fffaf3]/95 border border-[#efe4d2] shadow-lg p-4">
+              <p className="text-base font-semibold">¿Te guío para el primer presupuesto?</p>
+              <p className="text-sm text-stone-600 mt-1">Son pocos pasos. Los que no apliquen a este cliente se pueden omitir, por ejemplo las succiones.</p>
+              <div className="flex flex-wrap gap-2 mt-3">
+                <button type="button" className="rounded-full bg-emerald-600 px-3 py-1.5 text-sm font-semibold text-white" onClick={() => { setGuide('on'); writeGuide({ off: false, skipped: guideSkipped }); }}>Empezar</button>
+                <button type="button" className="rounded-full px-3 py-1.5 text-sm font-semibold text-stone-600" onClick={() => { setGuide('off'); writeGuide({ off: true, skipped: guideSkipped }); }}>Ya sé, omitir</button>
+              </div>
+            </div>
+          )}
+          {started && guide === 'on' && !diagram && !sheetOpen && (
+            <QuoteGuide
+              scene={scene}
+              skipped={guideSkipped}
+              onSkipStep={(id) => {
+                const skipped = [...guideSkipped, id];
+                setGuideSkipped(skipped);
+                writeGuide({ off: false, skipped });
+              }}
+              onDismiss={() => { setGuide('off'); writeGuide({ off: true, skipped: guideSkipped }); }}
+            />
+          )}
+          {!diagram && !selected && !armed && tool !== 'connect' && !story && guide === 'off' && scene.objects.every((object) => Boolean(object.attachedTo)) && (
             <div className="absolute left-3 top-3 z-10 w-64 rounded-3xl bg-[#fffaf3]/95 border border-[#efe4d2] shadow-lg p-4">
               <p className="text-base font-semibold">Empezá a construir</p>
               <p className="text-sm text-stone-600 mt-1">Elegí una pieza y colocala en la playa.</p>
@@ -999,6 +1034,7 @@ export default function QuoteStudio() {
                     <button type="button" className="w-full text-left rounded-xl px-3 py-2 hover:bg-emerald-50" onClick={() => focusRole('tank')}>Ver tanques</button>
                     <button type="button" className="w-full text-left rounded-xl px-3 py-2 hover:bg-emerald-50" onClick={() => focusRole('dispenser')}>Ver surtidores</button>
                     <button type="button" className="w-full text-left rounded-xl px-3 py-2 hover:bg-emerald-50" onClick={() => focusRole('office')}>Ver oficina</button>
+                    <button type="button" className="w-full text-left rounded-xl px-3 py-2 hover:bg-emerald-50" onClick={() => { const memory = readGuide(); setGuideSkipped(memory.skipped.filter((id) => id !== 'welcome')); setGuide('on'); writeGuide({ off: false, skipped: memory.skipped }); setMoreOpen(false); }}>Asistente</button>
                     <div className="mt-1 grid grid-cols-2 gap-1">
                       {(['fuel', 'telemetry', 'control', 'network'] as LayerFilter[]).map((filter) => (
                         <button key={filter} type="button" className={`rounded-xl px-2 py-1.5 text-xs ${layerFilter === filter ? 'bg-emerald-600 text-white' : 'bg-white'}`} onClick={() => { setDiagram(false); setLayerFilter(layerFilter === filter ? 'all' : filter); }}>
@@ -1012,8 +1048,8 @@ export default function QuoteStudio() {
             </div>
           )}
         </div>
-        <div className={`${mobilePanel === 'inspector' ? 'block' : 'hidden'} ${sheetOpen ? 'lg:block' : 'lg:hidden'} w-full lg:w-72 shrink-0`}>
-          <div className="hidden lg:flex items-center justify-between px-3 py-2 border-b border-sky-100 bg-white">
+        <div className={`${sheetOpen || mobilePanel === 'inspector' ? 'flex' : 'hidden'} h-full w-full lg:w-80 shrink-0 flex-col bg-white border-l border-sky-100 overflow-y-auto`}>
+          <div className="flex items-center justify-between px-3 py-2 border-b border-sky-100 bg-white">
             <p className="text-[11px] font-bold uppercase tracking-widest text-sky-600">Ficha</p>
             <button type="button" className="text-[11px] text-slate-500" onClick={() => setSheetOpen(false)}>Cerrar</button>
           </div>
@@ -1077,6 +1113,9 @@ export default function QuoteStudio() {
                   const next = templateScene(template.id);
                   setScene(next);
                   setStarted(true);
+                  const memory = readGuide();
+                  setGuideSkipped(memory.skipped);
+                  setGuide(memory.off ? 'off' : 'ask');
                   window.setTimeout(() => apiRef.current?.frame(frameExtents(next.objects.filter((object) => !object.attachedTo))), 60);
                 }}>
                   <span className="block font-bold">{template.title}</span>

@@ -337,13 +337,18 @@ function Draggable({
       {showPorts && <ConnectionNodes ports={ports} active={linkFrom === object.id} named={selected || linkFrom === object.id} onPick={(port) => onPort(object.id, port)} />}
       {showActions && onMoveTool && onRotateTool && onDuplicateTool && onRemoveTool && onConnectTool && (
         <Html position={[1.7, 1.35, 0]} center zIndexRange={[40, 0]} style={{ pointerEvents: 'auto' }}>
-          <div className="flex gap-1 rounded-full bg-[#fffaf3]/95 p-1 shadow-lg ring-1 ring-emerald-100" onPointerDown={(event) => event.stopPropagation()}>
-            <button type="button" className="rounded-full px-2.5 py-1 text-[11px] font-semibold text-stone-700 hover:bg-emerald-50" onClick={onMoveTool}>Mover</button>
-            <button type="button" className="rounded-full px-2.5 py-1 text-[11px] font-semibold text-stone-700 hover:bg-emerald-50" onClick={onRotateTool}>Girar</button>
-            <button type="button" className="rounded-full px-2.5 py-1 text-[11px] font-semibold text-stone-700 hover:bg-emerald-50" onClick={onDuplicateTool}>Duplicar</button>
-            <button type="button" className="rounded-full px-2.5 py-1 text-[11px] font-semibold text-emerald-700 hover:bg-emerald-50" onClick={onConnectTool}>Conectar</button>
-            {onEditTool && <button type="button" className="rounded-full px-2.5 py-1 text-[11px] font-semibold text-stone-700 hover:bg-emerald-50" onClick={onEditTool}>Editar</button>}
-            <button type="button" className="rounded-full px-2.5 py-1 text-[11px] font-semibold text-rose-600 hover:bg-rose-50" onClick={onRemoveTool}>Quitar</button>
+          <div
+            className="flex gap-1 rounded-full bg-[#fffaf3]/95 p-1 shadow-lg ring-1 ring-emerald-100"
+            onPointerDown={(event) => event.stopPropagation()}
+            onPointerUp={(event) => event.stopPropagation()}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button type="button" className="rounded-full px-2.5 py-1 text-[11px] font-semibold text-stone-700 hover:bg-emerald-50" onClick={(event) => { event.stopPropagation(); onMoveTool(); }}>Mover</button>
+            <button type="button" className="rounded-full px-2.5 py-1 text-[11px] font-semibold text-stone-700 hover:bg-emerald-50" onClick={(event) => { event.stopPropagation(); onRotateTool(); }}>Girar</button>
+            <button type="button" className="rounded-full px-2.5 py-1 text-[11px] font-semibold text-stone-700 hover:bg-emerald-50" onClick={(event) => { event.stopPropagation(); onDuplicateTool(); }}>Duplicar</button>
+            <button type="button" className="rounded-full px-2.5 py-1 text-[11px] font-semibold text-emerald-700 hover:bg-emerald-50" onClick={(event) => { event.stopPropagation(); onConnectTool(); }}>Conectar</button>
+            {onEditTool && <button type="button" className="rounded-full px-2.5 py-1 text-[11px] font-semibold text-stone-700 hover:bg-emerald-50" onClick={(event) => { event.stopPropagation(); onEditTool(); }}>Editar</button>}
+            <button type="button" className="rounded-full px-2.5 py-1 text-[11px] font-semibold text-rose-600 hover:bg-rose-50" onClick={(event) => { event.stopPropagation(); onRemoveTool(); }}>Quitar</button>
           </div>
         </Html>
       )}
