@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { doc, onSnapshot } from 'firebase/firestore';
-import { ArrowLeft, Network, Play, Plug, Redo2, SlidersHorizontal, Undo2, ZoomIn } from 'lucide-react';
+import { ArrowLeft, Network, Play, Plug, Redo2, SlidersHorizontal, Undo2, ZoomIn, ZoomOut } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import { useProducts } from '../../context/ProductContext';
 import { buildBom } from '../bom';
@@ -1016,6 +1016,12 @@ export default function QuoteStudio() {
               </button>
               <button type="button" className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold shadow-lg ${story === 'data' ? 'bg-emerald-600 text-white' : 'bg-white text-stone-700'}`} onClick={() => playStory('data')}>
                 <Play className="w-4 h-4" /> Cómo funciona
+              </button>
+              <button type="button" className="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-semibold text-stone-700 shadow-lg" onClick={() => apiRef.current?.zoom(1 / 1.25)}>
+                <ZoomOut className="w-4 h-4" /> Alejar
+              </button>
+              <button type="button" className="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-semibold text-stone-700 shadow-lg" onClick={() => apiRef.current?.zoom(1.25)}>
+                <ZoomIn className="w-4 h-4" /> Acercar
               </button>
               <button type="button" className="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-semibold text-stone-700 shadow-lg" onClick={fitScene}>
                 <ZoomIn className="w-4 h-4" /> Ajustar

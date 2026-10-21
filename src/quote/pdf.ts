@@ -4,6 +4,7 @@ import QRCode from 'qrcode';
 import type { Product } from '../types';
 import { COMPANY, installationLabel } from './company';
 import { money } from './specs';
+import { productsWithDocs } from './technicalDocs';
 import { ACTIVITIES, QUOTE_STATUSES, type Finding, type StoredQuote } from './types';
 
 const NAVY: [number, number, number] = [1, 24, 50];
@@ -20,26 +21,15 @@ function statusLabel(id: string): string {
 }
 
 export function technicalDocsForQuote(quote: StoredQuote, products: Product[]): Product[] {
-  const ids: string[] = [];
-  const seen = new Set<string>();
-  const remember = (id: string | null | undefined) => {
-    if (!id || seen.has(id)) return;
-    seen.add(id);
-    ids.push(id);
-  };
-  quote.bom.lines.forEach((line) => {
-    if (line.section !== 'infrastructure') remember(line.productId);
-  });
-  quote.scene.objects.forEach((object) => remember(object.productId));
-  const probeQuoted = quote.bom.lines.some((line) => line.section !== 'infrastructure' && /sonda/i.test(line.name));
-  if (probeQuoted) {
-    products.filter((product) => /sonda/i.test(product.name)).forEach((product) => remember(product.id));
-  }
-  return ids
-    .map((id) => products.find((product) => product.id === id))
-    .filter((product): product is Product => Boolean(product?.technicalDoc && product?.technicalDocKind));
+  return productsWithDocs(quote, products);
 }
 
+function asDataUrl(product: Product): string {
+  const data = (product.technicalDoc || '').replace(/\s/g, '');
+  if (data.startsWith('data:')) return product.technicalDoc || '';
+  if (product.technicalDocKind === 'pdf') return `data:application/pdf;base64,${data}`;
+  return `data:image/jpeg;base64,${data}`;
+}
 function dataUrlBytes(dataUrl: string): Uint8Array {
   const base64 = dataUrl.split(',')[1] || '';
   const binary = atob(base64);
@@ -48,40 +38,47 @@ function dataUrlBytes(dataUrl: string): Uint8Array {
   return bytes;
 }
 
+function plain(value: string): string {
+  return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\x20-\x7E]/g, '');
+}
+
 async function appendTechnicalDocs(blob: Blob, documents: Product[]): Promise<Blob> {
   if (documents.length === 0) return blob;
-  const main = await PDFDocument.load(await blob.arrayBuffer());
-  for (const product of documents) {
-    const data = product.technicalDoc || '';
-    if (!data.startsWith('data:')) continue;
-    try {
-      if (product.technicalDocKind === 'pdf') {
-        const cover = main.addPage([595.28, 841.89]);
-        cover.drawText('Documentación técnica', { x: 40, y: 780, size: 16 });
-        const title = product.name.slice(0, 80);
-        cover.drawText(title, { x: 40, y: 752, size: 12 });
-        const extra = await PDFDocument.load(dataUrlBytes(data));
-        const copied = await main.copyPages(extra, extra.getPageIndices());
-        copied.forEach((page) => main.addPage(page));
-      } else {
-        const bytes = dataUrlBytes(data);
-        const image = data.startsWith('data:image/png') ? await main.embedPng(bytes) : await main.embedJpg(bytes);
+  try {
+    const main = await PDFDocument.load(await blob.arrayBuffer());
+    for (const product of documents) {
+      const data = asDataUrl(product);
+      if (!data.startsWith('data:')) continue;
+      try {
+        if (product.technicalDocKind === 'pdf') {
+          const cover = main.addPage([595.28, 841.89]);
+          cover.drawText('Documentacion tecnica', { x: 40, y: 780, size: 16 });
+          cover.drawText(plain(product.name).slice(0, 80), { x: 40, y: 752, size: 12 });
+          const extra = await PDFDocument.load(dataUrlBytes(data), { ignoreEncryption: true });
+          const copied = await main.copyPages(extra, extra.getPageIndices());
+          copied.forEach((page) => main.addPage(page));
+        } else {
+          const bytes = dataUrlBytes(data);
+          const image = data.startsWith('data:image/png') ? await main.embedPng(bytes) : await main.embedJpg(bytes);
+          const page = main.addPage([595.28, 841.89]);
+          page.drawText('Documentacion tecnica', { x: 40, y: 800, size: 16 });
+          page.drawText(plain(product.name).slice(0, 80), { x: 40, y: 776, size: 12 });
+          const maxWidth = page.getWidth() - 80;
+          const maxHeight = page.getHeight() - 140;
+          const scale = Math.min(maxWidth / image.width, maxHeight / image.height);
+          const width = image.width * scale;
+          const height = image.height * scale;
+          page.drawImage(image, { x: 40, y: page.getHeight() - 110 - height, width, height });
+        }
+      } catch {
         const page = main.addPage([595.28, 841.89]);
-        page.drawText('Documentación técnica', { x: 40, y: 800, size: 16 });
-        page.drawText(product.name.slice(0, 80), { x: 40, y: 776, size: 12 });
-        const maxWidth = page.getWidth() - 80;
-        const maxHeight = page.getHeight() - 140;
-        const scale = Math.min(maxWidth / image.width, maxHeight / image.height);
-        const width = image.width * scale;
-        const height = image.height * scale;
-        page.drawImage(image, { x: 40, y: page.getHeight() - 110 - height, width, height });
+        page.drawText(`No se pudo adjuntar la ficha de ${plain(product.name).slice(0, 60)}.`, { x: 40, y: 780, size: 12 });
       }
-    } catch {
-      const page = main.addPage([595.28, 841.89]);
-      page.drawText(`No se pudo adjuntar la ficha de ${product.name.slice(0, 70)}.`, { x: 40, y: 780, size: 12 });
     }
+    return new Blob([await main.save() as BlobPart], { type: 'application/pdf' });
+  } catch {
+    return blob;
   }
-  return new Blob([await main.save() as BlobPart], { type: 'application/pdf' });
 }
 
 export async function buildQuotePdf(quote: StoredQuote, findings: Finding[], origin: string, products: Product[] = []): Promise<Blob> {

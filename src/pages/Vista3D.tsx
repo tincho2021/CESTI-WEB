@@ -54,7 +54,11 @@ export default function Vista3D() {
           <p className="text-sm font-semibold text-[#011832]">Vista 3D</p>
           <p className="text-[11px] text-stone-500">{quote.quoteNumber} · revisión {quote.revision}</p>
         </div>
-        <Link to={`/cotizacion-online?ver=${encodeURIComponent(quote.quoteNumber)}`} className="text-sm font-semibold text-emerald-800">Volver a la cotización</Link>
+        <div className="flex items-center gap-2">
+          <button type="button" className="rounded-full bg-white px-3 py-1.5 text-sm font-semibold text-stone-700 border border-[#efe4d2]" onClick={() => apiRef.current?.zoom(1 / 1.25)}>Alejar</button>
+          <button type="button" className="rounded-full bg-white px-3 py-1.5 text-sm font-semibold text-stone-700 border border-[#efe4d2]" onClick={() => apiRef.current?.zoom(1.25)}>Acercar</button>
+          <Link to={`/cotizacion-online?ver=${encodeURIComponent(quote.quoteNumber)}`} className="text-sm font-semibold text-emerald-800">Volver a la cotización</Link>
+        </div>
       </header>
       <div className="flex-1 min-h-0 relative">
         <InstallationCanvas

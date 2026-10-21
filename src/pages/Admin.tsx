@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import QuotesAdmin from './admin/QuotesAdmin';
 import RulesAdmin from './admin/RulesAdmin';
 import { useProducts } from '../context/ProductContext';
-import { Product } from '../types';
+import { cacheTechnicalDoc } from '../quote/technicalDocs';
 import { LogIn, Plus, Trash2, Edit2, Check, X, Upload, Eye, EyeOff, Settings, AlertTriangle, CloudUpload, Database } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -912,7 +912,12 @@ const Admin = () => {
                       data={editingProduct.technicalDoc}
                       onPick={(file) => {
                         void readTechnicalFile(file).then((doc) => {
-                          if (!doc) return;
+                          if (!doc || !editingProduct) return;
+                          cacheTechnicalDoc(editingProduct.id, {
+                            technicalDoc: doc.data,
+                            technicalDocName: doc.name,
+                            technicalDocKind: doc.kind,
+                          });
                           setEditingProduct({
                             ...editingProduct,
                             technicalDoc: doc.data,
@@ -921,12 +926,15 @@ const Admin = () => {
                           });
                         });
                       }}
-                      onClear={() => setEditingProduct({
-                        ...editingProduct,
-                        technicalDoc: null,
-                        technicalDocName: null,
-                        technicalDocKind: null,
-                      })}
+                      onClear={() => {
+                        cacheTechnicalDoc(editingProduct.id, null);
+                        setEditingProduct({
+                          ...editingProduct,
+                          technicalDoc: null,
+                          technicalDocName: null,
+                          technicalDocKind: null,
+                        });
+                      }}
                     />
 
                     <div>
