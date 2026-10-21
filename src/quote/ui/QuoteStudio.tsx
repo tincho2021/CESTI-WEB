@@ -912,7 +912,7 @@ export default function QuoteStudio() {
             </div>
           )}
           {started && guide === 'ask' && !diagram && (
-            <div className="absolute left-3 top-3 z-20 w-72 rounded-3xl bg-[#fffaf3]/95 border border-[#efe4d2] shadow-lg p-4">
+            <div className="absolute left-1/2 bottom-20 z-20 w-[min(28rem,calc(100%-1.5rem))] -translate-x-1/2 rounded-3xl bg-[#fffaf3]/95 border border-[#efe4d2] shadow-lg p-4">
               <p className="text-base font-semibold">¿Te guío para el primer presupuesto?</p>
               <p className="text-sm text-stone-600 mt-1">Son pocos pasos. Los que no apliquen a este cliente se pueden omitir, por ejemplo las succiones.</p>
               <div className="flex flex-wrap gap-2 mt-3">
@@ -921,7 +921,7 @@ export default function QuoteStudio() {
               </div>
             </div>
           )}
-          {started && guide === 'on' && !diagram && !sheetOpen && (
+          {started && guide === 'on' && !diagram && (
             <QuoteGuide
               scene={scene}
               skipped={guideSkipped}
@@ -939,7 +939,7 @@ export default function QuoteStudio() {
               <p className="text-sm text-stone-600 mt-1">Elegí una pieza y colocala en la playa.</p>
             </div>
           )}
-          {!diagram && selected && tool !== 'connect' && !pendingLink && !paidAsk && !story && (
+          {!diagram && selected && tool !== 'connect' && !pendingLink && !paidAsk && !story && guide === 'off' && (
             <InspectCard
               object={selected}
               scene={scene}

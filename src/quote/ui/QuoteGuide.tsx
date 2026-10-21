@@ -94,7 +94,7 @@ export default function QuoteGuide({
   const index = step ? GUIDE_STEPS.findIndex((item) => item.id === step.id) + 1 : GUIDE_STEPS.length;
 
   return (
-    <div className="absolute left-3 top-3 z-20 w-72 rounded-3xl bg-[#fffaf3]/95 border border-[#efe4d2] shadow-lg p-4">
+    <div className="absolute left-1/2 bottom-20 z-20 w-[min(28rem,calc(100%-1.5rem))] -translate-x-1/2 rounded-3xl bg-[#fffaf3]/95 border border-[#efe4d2] shadow-lg p-4">
       <div className="flex items-center justify-between gap-2">
         <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-700">Asistente · {index} de {GUIDE_STEPS.length}</p>
         <button type="button" className="text-[11px] font-semibold text-stone-500" onClick={onDismiss}>Omitir asistente</button>
