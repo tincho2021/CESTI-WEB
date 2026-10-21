@@ -136,6 +136,10 @@ export function assessConnection(
   if (probeSide && dispenserSide) {
     return status(id, 'incompatible', 'No hay un caso técnico definido para conectar una sonda directamente a un surtidor.', { connectionId: connection.id });
   }
+  const telemetryConsole = pair.find((object) => object.role === 'console-telemetry' || object.role === 'leak-console');
+  if (dispenserSide && telemetryConsole) {
+    return status(id, 'incompatible', 'El surtidor no se conecta directo a la consola. El enlace pasa por el controlador de surtidores.', { connectionId: connection.id });
+  }
 
   if (connection.type === 'association') {
     const terminal = pair.find((object) => object.role === 'rfid-rlcd');

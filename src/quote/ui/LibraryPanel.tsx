@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { LIBRARY } from '../library';
 import type { LibraryItem } from '../types';
 
@@ -111,11 +112,18 @@ const BUILD_GROUPS: { title: string; ids: string[] }[] = [
 
 export default function LibraryPanel({
   armedId,
+  highlightIds = [],
   onArm,
 }: {
   armedId: string | null;
+  highlightIds?: string[];
   onArm: (item: LibraryItem) => void;
 }) {
+  const marked = useRef<HTMLButtonElement | null>(null);
+  const firstHighlight = highlightIds[0] ?? '';
+  useEffect(() => {
+    marked.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }, [firstHighlight]);
   const listed = new Set(BUILD_GROUPS.flatMap((group) => group.ids));
   const rest = LIBRARY.filter((item) => !listed.has(item.id));
   const groups = rest.length ? [...BUILD_GROUPS, { title: 'Otros', ids: rest.map((item) => item.id) }] : BUILD_GROUPS;
@@ -132,6 +140,7 @@ export default function LibraryPanel({
             {group.ids.map((id) => LIBRARY.find((item) => item.id === id)).filter((item): item is LibraryItem => Boolean(item)).map((item) => (
               <button
                 key={item.id}
+                ref={highlightIds.includes(item.id) && item.id === firstHighlight ? marked : undefined}
                 type="button"
                 draggable
                 onDragStart={(event) => {
@@ -142,7 +151,7 @@ export default function LibraryPanel({
                 onClick={() => onArm(item)}
                 title={item.description}
                 className={`w-full flex items-center gap-3 text-left p-2 rounded-2xl border cursor-grab active:cursor-grabbing ${
-                  armedId === item.id ? 'border-emerald-500 bg-emerald-50 ring-2 ring-emerald-100' : 'border-[#efe4d2] bg-white hover:border-emerald-300'
+                  armedId === item.id || highlightIds.includes(item.id) ? 'border-emerald-500 bg-emerald-50 ring-2 ring-emerald-200' : 'border-[#efe4d2] bg-white hover:border-emerald-300'
                 }`}
               >
                 <Thumb item={item} />

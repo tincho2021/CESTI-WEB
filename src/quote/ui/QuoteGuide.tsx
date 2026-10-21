@@ -8,6 +8,8 @@ export type GuideStep = {
   id: string;
   title: string;
   body: string;
+  where: string;
+  pieceIds: string[];
   done: (scene: SceneState) => boolean;
 };
 
@@ -15,37 +17,49 @@ export const GUIDE_STEPS: GuideStep[] = [
   {
     id: 'tank',
     title: 'Colocá el tanque',
-    body: 'Elegí un tanque en Piezas y soltalo en la playa. Si este cliente no tiene tanque propio, omití el paso.',
+    where: 'Columna izquierda, Piezas, sección Infraestructura. Los botones se llaman Tanque subterráneo y Tanque vertical agropecuario.',
+    pieceIds: ['tank-underground', 'tank-vertical'],
+    body: 'Tocá uno de esos botones y después hacé clic en la playa. Si este cliente no tiene tanque propio, omití el paso.',
     done: (scene) => scene.objects.some((object) => object.role === 'tank'),
   },
   {
     id: 'pump',
     title: 'Si despacha, sumá el surtidor',
-    body: 'Un surtidor o un punto de carga alcanza. Si acá no se despacha combustible, este paso no aplica.',
+    where: 'Columna izquierda, Piezas, sección Infraestructura. El botón se llama Surtidor de combustible. Más abajo está Punto de carga industrial.',
+    pieceIds: ['dispenser', 'loading-point'],
+    body: 'Tocá el botón marcado y soltalo en la playa. Si acá no se despacha combustible, omití el paso.',
     done: (scene) => scene.objects.some((object) => object.role === 'dispenser' || object.role === 'loading-point'),
   },
   {
     id: 'office',
     title: 'Marcá dónde está la oficina',
-    body: 'La oficina es el lugar de la consola. Si todavía no la definieron, podés seguir sin ella.',
+    where: 'Menú de la izquierda, en Piezas, sección Infraestructura. Bajá con la rueda en esa columna: Oficina / sala de control está más abajo, después de los tanques y el surtidor.',
+    pieceIds: ['office'],
+    body: 'Cuando lo veas, tocá ese botón y soltalo en la playa. Si todavía no definieron la oficina, omití el paso.',
     done: (scene) => scene.objects.some((object) => object.role === 'office'),
   },
   {
     id: 'probe',
     title: 'Medí el nivel del tanque',
-    body: 'Seleccioná el tanque y tocá Agregar sonda. Si no van a telemedir, omitilo.',
+    where: 'Columna izquierda, Piezas, sección Telemedición. El botón se llama Sonda de nivel.',
+    pieceIds: ['probe'],
+    body: 'Tocá Sonda de nivel y soltala sobre el tanque. Si no van a telemedir, omití el paso.',
     done: (scene) => scene.objects.some((object) => object.role === 'probe'),
   },
   {
     id: 'console',
     title: 'Sumá la consola',
-    body: 'La consola recibe el nivel. Se agrega a la cotización recién cuando confirmás. Si no la van a instalar ahora, omití el paso.',
+    where: 'Columna izquierda, Piezas, sección Telemedición. El primer botón se llama Consola de telemedición.',
+    pieceIds: ['console'],
+    body: 'Tocá Consola de telemedición y soltala cerca de la oficina. Entra a la cotización cuando la confirmás. Si no la instalan ahora, omití el paso.',
     done: (scene) => scene.objects.some((object) => object.role === 'console-telemetry'),
   },
   {
     id: 'suction',
     title: 'Origen de cada manguera',
-    body: 'Las succiones no son obligatorias. Sirven para decir de qué tanque sale cada manguera. Si no las conocés, o no aplican a este cliente, omití este paso.',
+    where: 'No es una pieza de la lista. Tocá el surtidor que ya está en la playa y, en la barra que aparece arriba de él, el botón Conectar.',
+    pieceIds: [],
+    body: 'Después elegí el tanque. Las succiones no son obligatorias: si no las conocés, omití este paso.',
     done: (scene) => {
       const pumps = scene.objects.filter((object) => object.role === 'dispenser' || object.role === 'loading-point');
       if (pumps.length === 0) return false;
@@ -55,7 +69,9 @@ export const GUIDE_STEPS: GuideStep[] = [
   {
     id: 'quote',
     title: 'Generá el presupuesto',
-    body: 'Con Guardar y Cotizar sale el PDF. Los datos que no tengas pueden quedar vacíos.',
+    where: 'Abajo a la derecha de la pantalla. Los botones se llaman Guardar y Cotizar.',
+    pieceIds: [],
+    body: 'Los datos que no tengas pueden quedar vacíos.',
     done: () => false,
   },
 ];
@@ -102,6 +118,7 @@ export default function QuoteGuide({
       {step ? (
         <>
           <p className="text-base font-semibold mt-2">{step.title}</p>
+          <p className="text-sm font-semibold text-emerald-900 mt-2">Dónde está: {step.where}</p>
           <p className="text-sm text-stone-600 mt-1">{step.body}</p>
           <button type="button" className="mt-3 text-sm font-semibold text-emerald-800" onClick={() => onSkipStep(step.id)}>Omitir este paso</button>
         </>

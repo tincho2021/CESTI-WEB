@@ -80,6 +80,17 @@ test('C: cada manguera conserva el tanque de origen', () => {
   assert.ok(fuel.every((connection) => connection.provisional));
 });
 
+test('el surtidor no se conecta directo a la consola', () => {
+  const pump = createObject({ kind: 'dispenser', role: 'dispenser', name: 'S1', x: 0, z: 0, props: { hoseCount: 2, outlets: [{ product: '', tankId: null }, { product: '', tankId: null }] } });
+  const consoleObject = createObject({ kind: 'console', role: 'console-telemetry', name: 'C1', x: 4, z: 0, serviceKey: 'console-telemetry' });
+  const controller = createObject({ kind: 'controller', role: 'dispenser-controller', name: 'CS1', x: 2, z: 2, serviceKey: 'dispenser-controller' });
+  const scene = { ...emptyScene(), objects: [pump, consoleObject, controller] };
+  assert.equal(possibleLinks(pump.id, consoleObject.id, scene, settings, products).length, 0);
+  const forced: SceneConnection = { id: 'direct', fromId: pump.id, toId: consoleObject.id, type: 'sensor', layer: 'data' };
+  assert.equal(assessConnection(forced, { ...scene, connections: [forced] }, settings, products).status, 'incompatible');
+  assert.ok(possibleLinks(controller.id, consoleObject.id, scene, settings, products).some((option) => option.type === 'ethernet' || option.type === 'rs485'));
+});
+
 test('D: no deja conectar una sonda directo a un surtidor', () => {
   const host = tank('T1', 0, 0);
   const pump = createObject({ kind: 'dispenser', role: 'dispenser', name: 'S1', x: 3, z: 0 });

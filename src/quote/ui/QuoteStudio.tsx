@@ -36,7 +36,7 @@ import InspectCard from './InspectCard';
 import LibraryPanel from './LibraryPanel';
 import StatusBar from './StatusBar';
 import TopologyView from './TopologyView';
-import QuoteGuide, { readGuide, writeGuide } from './QuoteGuide';
+import QuoteGuide, { nextGuideStep, readGuide, writeGuide } from './QuoteGuide';
 
 const LINK_ORDER: ConnectionType[] = ['sensor', 'wireless', 'process', 'dispenser-control', 'ethernet', 'rs485', 'wifi', 'cloud', 'alarm', 'association'];
 const STORY_DATA = new Set<ConnectionType>(['sensor', 'wireless', 'rs485', 'ethernet', 'wifi', 'cloud', 'dispenser-control']);
@@ -809,7 +809,7 @@ export default function QuoteStudio() {
 
       <div className="flex-1 min-h-0 flex">
         <div className={`${mobilePanel === 'library' ? 'block' : 'hidden'} lg:block w-full lg:w-60 shrink-0`}>
-          <LibraryPanel armedId={armed?.id ?? null} onArm={(item) => { setArmed(item); setMobilePanel(null); }} />
+          <LibraryPanel armedId={armed?.id ?? null} highlightIds={guide === 'on' ? (nextGuideStep(scene, guideSkipped)?.pieceIds ?? []) : []} onArm={(item) => { setArmed(item); setMobilePanel(null); }} />
         </div>
         <div className={`${mobilePanel ? 'hidden lg:block' : 'block'} flex-1 min-w-0 relative`}>
           <div className={diagram ? 'hidden' : 'absolute inset-0'}>
