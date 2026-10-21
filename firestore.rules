@@ -1,0 +1,102 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default Catch-All Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function validQuoteStatus(status) {
+      return status in ['draft', 'pending_review', 'issued', 'negotiation', 'approved', 'rejected', 'expired'];
+    }
+
+    function validQuoteCore(data) {
+      return data.keys().hasAll(['quoteNumber', 'revision', 'status', 'createdAt', 'updatedAt', 'scene', 'rulesVersion'])
+        && data.quoteNumber is string
+        && data.quoteNumber.size() >= 6
+        && data.quoteNumber.size() <= 40
+        && data.revision is number
+        && data.revision >= 1
+        && data.revision <= 200
+        && validQuoteStatus(data.status)
+        && data.scene is map
+        && data.scene.objects is list
+        && data.scene.objects.size() <= 60
+        && data.scene.connections is list
+        && data.scene.connections.size() <= 120
+        && data.rulesVersion is string
+        && data.rulesVersion.size() <= 40;
+    }
+
+    // Private edit document. The id is the recovery code and is not listable.
+    match /quotes/{recoveryCode} {
+      allow get: if true;
+      allow list: if false;
+      allow create, update: if validQuoteCore(request.resource.data)
+        && request.resource.data.recoveryCode == recoveryCode
+        && recoveryCode.size() >= 12;
+      allow delete: if false;
+
+      match /versions/{versionId} {
+        allow get: if true;
+        allow list: if false;
+        allow create: if request.resource.data.revision is number
+          && request.resource.data.scene is map
+          && request.resource.data.scene.objects.size() <= 60;
+        allow update, delete: if false;
+      }
+    }
+
+    // Public read by quote number. Listing is disabled so numbers cannot be enumerated.
+    match /quotePublic/{quoteNumber} {
+      allow get: if true;
+      allow list: if false;
+      allow create, update: if validQuoteCore(request.resource.data)
+        && request.resource.data.quoteNumber == quoteNumber;
+      allow delete: if false;
+    }
+
+    // Admin index. Readable as a list from the existing client-side admin panel.
+    match /quoteIndex/{quoteNumber} {
+      allow get, list: if true;
+      allow create, update: if validQuoteCore(request.resource.data)
+        && request.resource.data.quoteNumber == quoteNumber;
+      allow delete: if false;
+    }
+
+    match /quoteSettings/{docId} {
+      allow read: if docId == 'config';
+      allow create, update: if docId == 'config'
+        && request.resource.data.currency is string
+        && request.resource.data.bindings is list
+        && request.resource.data.bindings.size() <= 40;
+      allow delete: if false;
+    }
+
+    // Products Catalog Collection: Publicly readable, strictly validated writes
+    match /products/{productId} {
+      allow read, get, list: if true;
+      allow create: if isValidProduct(request.resource.data);
+      allow update: if isValidProduct(request.resource.data);
+      allow delete: if true;
+    }
+
+    // Helper functions for validation
+    function isValidProduct(data) {
+      return data.keys().hasAll(['id', 'name', 'price', 'category', 'image', 'description', 'smartReady', 'stock'])
+        && data.id is string
+        && data.id.size() <= 128
+        && data.name is string
+        && data.name.size() <= 200
+        && data.price is number
+        && data.category is string
+        && data.category.size() <= 100
+        && data.image is string
+        && data.image.size() <= 2000000
+        && data.description is string
+        && data.description.size() <= 10000
+        && data.smartReady is bool
+        && data.stock is number;
+    }
+  }
+}

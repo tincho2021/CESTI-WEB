@@ -1,0 +1,54 @@
+{
+  "entities": {
+    "products": {
+      "title": "Product",
+      "description": "Product catalog item managed by the CESTI admin panel",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier of the product"
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the industrial product"
+        },
+        "price": {
+          "type": "number",
+          "description": "Price of the product"
+        },
+        "category": {
+          "type": "string",
+          "description": "The custom category/classification"
+        },
+        "image": {
+          "type": "string",
+          "description": "The image asset URL or compressed base64 string"
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed industrial description"
+        },
+        "smartReady": {
+          "type": "boolean",
+          "description": "Whether the product is smart systems ready"
+        },
+        "stock": {
+          "type": "number",
+          "description": "Current quantity in hand"
+        },
+        "specs": {
+          "type": "object",
+          "description": "Key-value pair of characteristics or specifications"
+        }
+      },
+      "required": ["id", "name", "price", "category", "image", "description", "stock", "smartReady"]
+    }
+  },
+  "firestore": {
+    "products/{productId}": {
+      "schema": "products",
+      "description": "Catalog of industrial products and specialized solutions"
+    }
+  }
+}
