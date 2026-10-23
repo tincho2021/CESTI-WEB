@@ -26,3 +26,186 @@
     @apply bg-gray-200 hover:bg-red-600 transition-colors;
   }
 }
+
+@layer components {
+  .hero-stage {
+    perspective: 1400px;
+  }
+
+  .hero-cursor {
+    position: absolute;
+    z-index: 4;
+    width: 34rem;
+    height: 34rem;
+    margin: -17rem 0 0 -17rem;
+    background: radial-gradient(circle, rgba(0, 176, 255, 0.2), transparent 68%);
+    pointer-events: none;
+    mix-blend-mode: screen;
+    transition: left 80ms linear, top 80ms linear;
+  }
+
+  .hero-boot-scan {
+    position: absolute;
+    inset: 0;
+    z-index: 30;
+    pointer-events: none;
+    background: linear-gradient(180deg, transparent 0%, rgba(0, 176, 255, 0.28) 48%, transparent 100%);
+    transform: translateY(-120%);
+    animation: hero-boot-scan 1.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .hero-vignette {
+    position: absolute;
+    inset: 0;
+    z-index: 6;
+    pointer-events: none;
+    background:
+      linear-gradient(90deg, rgba(5, 7, 12, 0.48) 0%, rgba(5, 7, 12, 0.16) 36%, transparent 60%),
+      linear-gradient(180deg, rgba(5, 7, 12, 0.12) 0%, transparent 30%, rgba(5, 7, 12, 0.42) 100%);
+    box-shadow: inset 0 0 120px 20px rgba(0, 0, 0, 0.28);
+  }
+
+  .hero-console {
+    position: absolute;
+    top: 12%;
+    right: 1%;
+    z-index: 8;
+    width: min(46vw, 680px);
+    transform-style: preserve-3d;
+  }
+
+  .hero-console-inner {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(125, 211, 252, 0.28);
+    border-radius: 18px;
+    background: #0b1220;
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.04),
+      0 30px 80px rgba(0, 0, 0, 0.55),
+      0 0 80px rgba(0, 176, 255, 0.18),
+      0 0 140px rgba(220, 38, 38, 0.08);
+  }
+
+  .hero-media {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    object-position: 50% 42%;
+    filter: saturate(1.12) contrast(1.12);
+    animation: hero-kenburns 14s ease-in-out infinite alternate;
+  }
+
+  .hero-console-scan {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.045) 0px,
+      rgba(255, 255, 255, 0.045) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    mix-blend-mode: overlay;
+    pointer-events: none;
+  }
+
+  .hero-console-scan::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 22%;
+    background: linear-gradient(180deg, transparent, rgba(0, 176, 255, 0.2), transparent);
+    animation: hero-scan-move 3.8s linear infinite;
+  }
+
+  .hero-console-glow {
+    position: absolute;
+    inset: 18% 12% 28% 12%;
+    border-radius: 8px;
+    box-shadow: inset 0 0 40px rgba(0, 176, 255, 0.12);
+    animation: hero-screen-pulse 3.2s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  .hero-console-reflection {
+    height: 4.5rem;
+    margin-top: 0.6rem;
+    border-radius: 0 0 18px 18px;
+    background: linear-gradient(180deg, rgba(56, 189, 248, 0.12), transparent);
+    filter: blur(10px);
+    opacity: 0.55;
+  }
+
+  .hero-hud {
+    position: absolute;
+    right: 2.2rem;
+    bottom: 7.5rem;
+    z-index: 20;
+    width: 18rem;
+    border: 1px solid rgba(125, 211, 252, 0.18);
+    background: rgba(5, 8, 14, 0.72);
+    padding: 1rem;
+    backdrop-filter: blur(18px);
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.4), 0 0 30px rgba(0, 176, 255, 0.08);
+  }
+
+  .hero-cta-glow {
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.55);
+    animation: hero-cta-pulse 2.4s ease-out infinite;
+  }
+}
+
+@keyframes hero-kenburns {
+  0% { transform: scale(1.04) translate3d(1.2%, 0.6%, 0); }
+  100% { transform: scale(1.16) translate3d(-1.8%, -1.4%, 0); }
+}
+
+@keyframes hero-scan-move {
+  0% { top: -24%; }
+  100% { top: 110%; }
+}
+
+@keyframes hero-boot-scan {
+  0% { transform: translateY(-120%); opacity: 0; }
+  18% { opacity: 1; }
+  100% { transform: translateY(120%); opacity: 0; }
+}
+
+@keyframes hero-screen-pulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.8; }
+}
+
+@keyframes hero-cta-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.45); }
+  70% { box-shadow: 0 0 0 16px rgba(220, 38, 38, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+}
+
+@media (max-width: 1024px) {
+  .hero-console {
+    top: 8%;
+    right: -8%;
+    width: min(78vw, 560px);
+    opacity: 0.42;
+  }
+
+  .hero-vignette {
+    background:
+      linear-gradient(180deg, rgba(5, 7, 12, 0.35) 0%, rgba(5, 7, 12, 0.72) 48%, rgba(5, 7, 12, 0.88) 100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-media,
+  .hero-console-scan::after,
+  .hero-boot-scan,
+  .hero-console-glow,
+  .hero-cta-glow {
+    animation: none !important;
+  }
+}

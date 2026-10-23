@@ -4,6 +4,7 @@ import { motion } from 'motion/react';
 import { ArrowRight, Cpu, Activity, ShieldCheck, Zap, Layers, Settings } from 'lucide-react';
 import { useProducts } from '../context/ProductContext';
 import ProductCard from '../components/ProductCard';
+import HeroStage from '../components/HeroStage';
 import { useLanguage } from '../context/LanguageContext';
 
 const Home = () => {
@@ -13,90 +14,69 @@ const Home = () => {
   return (
     <div className="pt-20">
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center bg-gray-50 pb-20 md:pb-0">
-        <div className="absolute inset-0 z-0 overflow-hidden bg-gray-50">
-          {/* Technical Grid Pattern */}
-          <div 
-            className="absolute inset-0 opacity-[0.03]" 
-            style={{ 
-              backgroundImage: `linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)`,
-              backgroundSize: '40px 40px' 
-            }} 
-          />
-          
-          {/* Hero Background Image */}
-          <img
-            src="/images/hero-bg.png"
-            alt="C.E.S.T.I Industrial Intelligence"
-            className="absolute inset-0 w-full h-full object-cover opacity-40 grayscale"
-          />
-          
-          {/* Abstract Schematic Elements */}
-          <svg className="absolute inset-0 w-full h-full opacity-[0.05] pointer-events-none" viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <pattern id="dotGrid" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-                <circle cx="2" cy="2" r="0.5" fill="currentColor" />
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#dotGrid)" />
-            
-            {/* Abstract technical lines */}
-            <path d="M 100 0 L 100 1000 M 900 0 L 900 1000 M 0 200 L 1000 200 M 0 800 L 1000 800" stroke="currentColor" strokeWidth="0.5" fill="none" />
-            <path d="M 100 200 L 200 300 L 200 500 L 100 600" stroke="currentColor" strokeWidth="1" fill="none" />
-            <path d="M 900 800 L 800 700 L 800 500 L 900 400" stroke="currentColor" strokeWidth="1" fill="none" />
-            
-            {/* Technical circles/nodes */}
-            <circle cx="100" cy="200" r="4" fill="currentColor" />
-            <circle cx="900" cy="800" r="4" fill="currentColor" />
-            <circle cx="200" cy="300" r="3" fill="currentColor" />
-            <circle cx="800" cy="700" r="3" fill="currentColor" />
-          </svg>
-
-          <div className="absolute inset-0 bg-gradient-to-r from-gray-100/70 via-white/20 to-transparent z-10" />
-          
-          {/* UI Overlays Mock */}
-          <div className="absolute top-1/4 right-10 w-64 h-64 border border-gray-200 rounded-full animate-pulse opacity-20 hidden lg:block z-20" />
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 border border-gray-200 rounded-full animate-pulse opacity-10 hidden lg:block z-20" />
-          <div className="absolute top-1/2 right-1/3 w-48 h-48 border border-red-600/10 rounded-full animate-ping hidden lg:block z-20" />
-        </div>
+      <section className="relative min-h-[100svh] flex items-center overflow-hidden bg-[#05070c] pb-16 md:pb-8">
+        <HeroStage />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 py-20">
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
-            className="max-w-2xl"
-          >
-            <div className="flex items-center space-x-2 mb-6">
+          <div className="max-w-lg relative">
+            <motion.div
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.35, duration: 0.5 }}
+              className="flex items-center space-x-2 mb-6"
+            >
               <div className="w-12 h-[2px] bg-red-600" />
-              <span className="text-xs font-bold uppercase tracking-[0.3em] text-red-600">{t('hero.tag')}</span>
-            </div>
-            <h1 className="text-6xl md:text-7xl font-bold tracking-tighter leading-[0.9] text-gray-900 mb-8">
-              {t('hero.title.part1')} <br />
-              <span className="text-gray-400">{t('hero.title.part2')}</span>
+              <span className="text-xs font-bold uppercase tracking-[0.3em] text-red-500">{t('hero.tag')}</span>
+            </motion.div>
+            <h1 className="relative text-5xl md:text-7xl font-bold tracking-tighter leading-[0.9] text-white mb-8 [text-shadow:0_10px_40px_rgba(0,0,0,0.75)]">
+              <motion.span
+                initial={{ opacity: 0, y: 46, filter: 'blur(14px)' }}
+                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                transition={{ delay: 0.45, duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
+                className="block"
+              >
+                {t('hero.title.part1')}
+              </motion.span>
+              <motion.span
+                initial={{ opacity: 0, y: 46, filter: 'blur(14px)' }}
+                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                transition={{ delay: 0.62, duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
+                className="block bg-gradient-to-r from-white via-cyan-100 to-white/70 bg-clip-text text-transparent"
+              >
+                {t('hero.title.part2')}
+              </motion.span>
             </h1>
-            <p className="text-xl text-gray-600 mb-10 leading-relaxed font-medium">
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.82, duration: 0.55 }}
+              className="relative text-lg md:text-xl text-white/80 mb-10 leading-relaxed font-medium [text-shadow:0_4px_18px_rgba(0,0,0,0.55)]"
+            >
               {t('hero.sub')}
-            </p>
-            <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6">
+            </motion.p>
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.95, duration: 0.5 }}
+              className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6"
+            >
               <Link
                 to="/shop"
-                className="bg-black text-white px-10 py-5 font-bold uppercase tracking-widest text-sm hover:bg-red-600 transition-all flex items-center justify-center group"
+                className="hero-cta-glow bg-red-600 text-white px-10 py-5 font-bold uppercase tracking-widest text-sm hover:bg-white hover:text-black transition-all flex items-center justify-center group"
               >
                 {t('hero.cta.shop')}
                 <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link
                 to="/contact"
-                className="border-2 border-black text-black px-10 py-5 font-bold uppercase tracking-widest text-sm hover:bg-black hover:text-white transition-all flex items-center justify-center"
+                className="border-2 border-white/80 text-white px-10 py-5 font-bold uppercase tracking-widest text-sm hover:bg-white hover:text-black transition-all flex items-center justify-center"
               >
                 {t('hero.cta.custom')}
               </Link>
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
 
-          {/* Stats Grid - Integrated into flow */}
-          <div className="mt-20 grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
+          <div className="mt-16 grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
             {[
               { label: t('stat.uptime'), value: '99.99%', icon: Activity },
               { label: t('stat.response'), value: '< 10ms', icon: Zap },
@@ -105,15 +85,15 @@ const Home = () => {
             ].map((stat, i) => (
               <motion.div
                 key={stat.label}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 + i * 0.1 }}
-                className="bg-white border border-gray-100 p-4 md:p-6 flex items-center space-x-4 shadow-lg shadow-gray-100/50"
+                transition={{ delay: 1.05 + i * 0.08, duration: 0.45 }}
+                className="border border-cyan-200/10 bg-white/10 p-4 md:p-5 flex items-center space-x-4 backdrop-blur-md"
               >
-                <stat.icon className="w-5 h-5 text-red-600 shrink-0" />
+                <stat.icon className="w-5 h-5 text-red-500 shrink-0" />
                 <div>
-                  <p className="text-[10px] uppercase tracking-widest text-gray-400 font-bold leading-none mb-1">{stat.label}</p>
-                  <p className="text-base md:text-lg font-bold text-gray-900 leading-none">{stat.value}</p>
+                  <p className="text-[10px] uppercase tracking-widest text-white/50 font-bold leading-none mb-1">{stat.label}</p>
+                  <p className="text-base md:text-lg font-bold text-white leading-none">{stat.value}</p>
                 </div>
               </motion.div>
             ))}
