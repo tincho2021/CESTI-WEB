@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
+import { publicSiteOrigin } from './company';
+import { parseInstallPrompt, sceneFromPrompt } from './promptScene';
 import { products } from '../data/products';
 import { buildBom } from './bom';
 import { technicalDocsForQuote } from './pdf';
@@ -261,4 +263,40 @@ test('el asistente deja omitir un paso que no aplica', () => {
   assert.equal(nextGuideStep(scene, [])?.id, 'tank');
   assert.equal(nextGuideStep(scene, ['tank'])?.id, 'pump');
   assert.equal(nextGuideStep(scene, GUIDE_SKIP_ALL)?.id, 'quote');
+});
+
+test('el QR de la cotización no usa localhost', () => {
+  assert.equal(publicSiteOrigin('http://localhost:3000'), 'https://cesti-web.netlify.app');
+  assert.equal(publicSiteOrigin('http://127.0.0.1:5173'), 'https://cesti-web.netlify.app');
+  assert.equal(publicSiteOrigin('https://cesti-web.netlify.app'), 'https://cesti-web.netlify.app');
+  assert.equal(publicSiteOrigin('https://www.cesti.com.ar/'), 'https://www.cesti.com.ar');
+});
+
+test('un pedido pegado arma tanques, surtidores, sondas y control de flota', () => {
+  const text = `instalacion de dos sistemas de control de flota escalante
+1- surtidor gilbarco cuadruple
+2- surtidor bertotto doble
+3- instalacion de telemedicion en 2 tanque verticales 7.5 mts altura
+Monte Buey
+1- surtidor alto caudal wayne
+2- Instalacion de telemedicion en 1 tanque vertical 7.5 mts altura`;
+  const plan = parseInstallPrompt(text);
+  assert.equal(plan.sites.length, 2);
+  assert.equal(plan.sites[0].name, 'Escalante');
+  assert.equal(plan.sites[0].dispensers[0].hoseCount, 4);
+  assert.equal(plan.sites[0].dispensers[1].hoseCount, 2);
+  assert.equal(plan.sites[0].tanks.length, 2);
+  assert.equal(plan.sites[0].tanks[0].heightMm, 7500);
+  assert.equal(plan.sites[1].name, 'Monte Buey');
+  assert.equal(plan.sites[1].tanks.length, 1);
+  assert.equal(plan.sites[1].dispensers[0].brand, 'Wayne');
+  const { scene } = sceneFromPrompt(plan, settings, products);
+  assert.equal(scene.objects.filter((object) => object.role === 'tank').length, 3);
+  assert.equal(scene.objects.filter((object) => object.role === 'dispenser').length, 3);
+  assert.equal(scene.objects.filter((object) => object.role === 'probe').length, 3);
+  assert.equal(scene.objects.filter((object) => object.role === 'console-telemetry').length, 2);
+  assert.equal(scene.objects.filter((object) => object.role === 'dispenser-controller').length, 2);
+  assert.equal(scene.objects.filter((object) => object.role === 'fleet').length, 2);
+  assert.ok(scene.connections.some((connection) => connection.type === 'sensor'));
+  assert.ok(scene.connections.some((connection) => connection.type === 'dispenser-control'));
 });

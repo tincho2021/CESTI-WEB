@@ -15,6 +15,7 @@ import InstallationCanvas, { CONNECTION_LABELS, frameExtents, insidePlot, type S
 import { connectionTouches, detachOrRemove, familyIds, installProbe, possibleLinks, presentScene, probeVisual, rotateObject, suggestConnections, syncFuelLinks, transmitterHost, type LayerFilter } from '../scene/logic';
 import type { ScenePort } from '../scene/ports';
 import { emptyCustomer, loadPrivateQuote, loadPublicQuote, saveQuote, validateCustomer } from '../storage';
+import { customerFromPrompt, parseInstallPrompt, sceneFromPrompt } from '../promptScene';
 import { templateScene } from '../templates';
 import {
   ACTIVITIES,
@@ -132,6 +133,8 @@ export default function QuoteStudio() {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [guide, setGuide] = useState<'off' | 'ask' | 'on'>('off');
   const [guideSkipped, setGuideSkipped] = useState<string[]>([]);
+  const [promptText, setPromptText] = useState('');
+  const [promptError, setPromptError] = useState<string | null>(null);
   const editLock = useRef(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const history = useRef<SceneState[]>([]);
@@ -736,6 +739,22 @@ export default function QuoteStudio() {
     void persist(action, customer);
   }
 
+  function applyPrompt() {
+    const plan = parseInstallPrompt(promptText);
+    if (!plan.sites.length || plan.sites.every((site) => !site.tanks.length && !site.dispensers.length)) {
+      setPromptError('No reconocí tanques ni surtidores en el texto. Pegá el pedido con cantidades, marcas y si lleva telemedición.');
+      return;
+    }
+    const built = sceneFromPrompt(plan, settings, products);
+    setScene(built.scene);
+    setCustomer(customerFromPrompt(plan, customer));
+    setStarted(true);
+    setGuide('off');
+    setPromptError(null);
+    setMessage(`Armamos la playa desde el pedido. ${built.summary}. Revisá marcas, alturas y conexiones antes de cotizar.`);
+    window.setTimeout(() => apiRef.current?.frame(frameExtents(built.scene.objects.filter((object) => !object.attachedTo))), 60);
+  }
+
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null;
@@ -1113,6 +1132,23 @@ export default function QuoteStudio() {
             <p className="text-[10px] font-bold uppercase tracking-widest text-red-600">C.E.S.T.I.</p>
             <h1 className="text-3xl md:text-4xl font-bold tracking-tight mt-2">Diseñá tu instalación con C.E.S.T.I.</h1>
             <p className="text-gray-600 mt-3">Armá tu estación de servicio, instalación agroindustrial o sistema de abastecimiento. Nosotros calculamos los equipos necesarios.</p>
+            <div className="mt-6 border border-gray-200 p-4">
+              <p className="text-xs font-bold uppercase tracking-widest text-red-600">Desde un pedido</p>
+              <p className="text-sm text-gray-500 mt-1">Pegá el chat del cliente. El configurador coloca tanques, surtidores, sondas, consolas y control de flota.</p>
+              <textarea
+                value={promptText}
+                onChange={(event) => {
+                  setPromptText(event.target.value);
+                  setPromptError(null);
+                }}
+                rows={6}
+                className="mt-3 w-full border border-gray-200 px-3 py-2 text-sm font-normal"
+              />
+              {promptError && <p className="text-sm text-red-600 mt-2">{promptError}</p>}
+              <button type="button" className="mt-3 bg-red-600 text-white px-4 py-2 text-xs font-bold uppercase tracking-widest" onClick={applyPrompt}>
+                Armar instalación
+              </button>
+            </div>
             <div className="grid sm:grid-cols-2 gap-3 mt-6">
               {TEMPLATES.map((template) => (
                 <button key={template.id} type="button" className="text-left border border-gray-200 p-4 hover:border-red-600" onClick={() => {

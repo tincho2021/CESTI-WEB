@@ -2,7 +2,7 @@ import { jsPDF } from 'jspdf';
 import { PDFDocument } from 'pdf-lib';
 import QRCode from 'qrcode';
 import type { Product } from '../types';
-import { COMPANY, installationLabel } from './company';
+import { COMPANY, installationLabel, publicSiteOrigin } from './company';
 import { money } from './specs';
 import { productsWithDocs } from './technicalDocs';
 import { ACTIVITIES, QUOTE_STATUSES, type Finding, type StoredQuote } from './types';
@@ -283,7 +283,7 @@ export async function buildQuotePdf(quote: StoredQuote, findings: Finding[], ori
   y += 4.5;
   pdf.text(COMPANY.address, margin, y);
 
-  const readUrl = `${origin}/cotizacion-online?ver=${encodeURIComponent(quote.quoteNumber)}`;
+  const readUrl = `${publicSiteOrigin(origin)}/cotizacion-online?ver=${encodeURIComponent(quote.quoteNumber)}`;
   try {
     const qr = await QRCode.toDataURL(readUrl, { margin: 0, width: 180, color: { dark: '#011832', light: '#ffffff' } });
     pdf.addImage(qr, 'PNG', pageWidth - margin - 28, y - 18, 28, 28);
